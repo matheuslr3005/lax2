@@ -1,0 +1,1310 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>LAX Workspace</title>
+<meta name="description" content="A LAX reúne performance, branding, social media, criação de conteúdo e tráfego pago num time só. Conheça quem somos, como trabalhamos e fale com a gente." />
+<link rel="icon" href="assets/img/logo/lax-color.png" type="image/png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" />
+<style>
+/* Layout concept: a Notion-style workspace. Sidebar page tree + breadcrumb bar + ⌘K palette, one long page of blocks
+   (properties, toggles, board, database views with side peek). Cadomar contributes the mechanics: pointer spotlight
+   over a photo cover, slanted red marquee, panels that expand on hover, animated route card, floating-label form. */
+:root {
+  /* palette: LAX red / wine / sand on a warm paper neutral */
+  --bg: #FBFAF8; --surface: #FFFFFF; --side: #F4F1EE; --sunk: #F3EFEC;
+  --ink: #1B1516; --ink-2: #4A4244; --muted: #6F6667; --hair: #E6E0DC; --hair-2: #D3CAC5;
+  --red: #C4272C; --wine: #70090A; --sand: #F1DBD0; --accent-text: #B3191F;
+  --tint-red: #F9E3E1; --tint-sand: #F1DBD0; --tint-gray: #EDE9E6; --tint-wine: #EBD0CF;
+  --panel-a: #171313; --panel-b: #4F0708; --on-dark: #F5F3F1; --on-dark-2: rgba(245,243,241,.78);
+  --shadow: 0 1px 2px rgba(27,21,22,.06), 0 8px 24px rgba(27,21,22,.08);
+  --shadow-lg: 0 24px 64px rgba(27,21,22,.24);
+  --ok: #1F7A45;
+  --show-on-light: block; --show-on-dark: none;
+
+  /* type */
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* motion + shape */
+  --slant: skewX(-20deg); --unslant: skewX(20deg);
+  --ease: cubic-bezier(.2,.6,.2,1); --ease-out: cubic-bezier(.16,1,.3,1);
+  --side-w: 264px; --top-h: 56px; --gut: clamp(16px, 4vw, 56px); --maxw: 1040px; --r: 6px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131010; --surface: #1B1717; --side: #0E0C0C; --sunk: #1D1818;
+    --ink: #F5F3F1; --ink-2: #D2CBC8; --muted: #A09695; --hair: #2B2525; --hair-2: #3B3333;
+    --accent-text: #F0686C; --tint-red: #3A1517; --tint-sand: #3B2C27; --tint-gray: #2A2525; --tint-wine: #44191B;
+    --panel-a: #1D1818; --panel-b: #5A0A0C;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.4); --shadow-lg: 0 24px 64px rgba(0,0,0,.6);
+    --ok: #4FC083; --show-on-light: none; --show-on-dark: block;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131010; --surface: #1B1717; --side: #0E0C0C; --sunk: #1D1818;
+  --ink: #F5F3F1; --ink-2: #D2CBC8; --muted: #A09695; --hair: #2B2525; --hair-2: #3B3333;
+  --accent-text: #F0686C; --tint-red: #3A1517; --tint-sand: #3B2C27; --tint-gray: #2A2525; --tint-wine: #44191B;
+  --panel-a: #1D1818; --panel-b: #5A0A0C;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.4); --shadow-lg: 0 24px 64px rgba(0,0,0,.6);
+  --ok: #4FC083; --show-on-light: none; --show-on-dark: block;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(var(--top-h) + 16px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+h1, h2, h3, h4, p, ul, figure, dl, dd { margin: 0; }
+ul { padding: 0; list-style: none; }
+a { color: inherit; }
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+kbd { font: 500 11px/1 var(--mono); padding: 3px 6px; border: 1px solid var(--hair-2); border-bottom-width: 2px; border-radius: 4px; color: var(--muted); background: var(--surface); }
+.logo-l { display: var(--show-on-light); } .logo-d { display: var(--show-on-dark); }
+
+/* ---------- App frame ---------- */
+.app { display: grid; grid-template-columns: var(--side-w) minmax(0, 1fr); min-height: 100vh; transition: grid-template-columns 320ms var(--ease-out); }
+body.side-off .app { grid-template-columns: 0 minmax(0, 1fr); }
+.side {
+  position: sticky; top: env(safe-area-inset-top, 0px); height: 100vh; height: 100dvh; overflow: hidden auto;
+  background: var(--side); border-right: 1px solid var(--hair); padding: 12px 10px 14px; display: flex; flex-direction: column; gap: 10px;
+  z-index: 50; transition: transform 320ms var(--ease-out), visibility 0s;
+}
+body.side-off .side { transform: translateX(-100%); visibility: hidden; transition: transform 320ms var(--ease-out), visibility 0s 320ms; }
+.side-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 6px 2px; }
+.side-brand img { height: 26px; width: auto; }
+.icon-btn { width: 34px; height: 34px; display: inline-grid; place-items: center; border: 0; background: transparent; border-radius: var(--r); color: var(--muted); transition: background 140ms, color 140ms; }
+.icon-btn:hover { background: var(--tint-gray); color: var(--ink); }
+.side-search { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border: 1px solid var(--hair); background: var(--surface); border-radius: var(--r); color: var(--muted); font-size: 14px; text-align: left; transition: border-color 140ms; }
+.side-search:hover { border-color: var(--hair-2); color: var(--ink); }
+.side-search span { flex: 1; }
+.tree-label { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 10px 10px 6px; }
+.tree { display: flex; flex-direction: column; gap: 2px; }
+.tree-row { display: flex; align-items: center; border-radius: var(--r); }
+.tree-row a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--r); text-decoration: none; font-size: 14.5px; color: var(--ink-2); transition: background 140ms, color 140ms; }
+.tree-row:hover, .tree-row a:hover { background: var(--tint-gray); }
+.tree-row a[aria-current="true"] { background: var(--tint-red); color: var(--ink); font-weight: 600; }
+.tree-row a[aria-current="true"] svg { color: var(--accent-text); }
+.caret { width: 26px; height: 26px; display: grid; place-items: center; border: 0; background: transparent; color: var(--muted); border-radius: 4px; margin-right: 4px; }
+.caret svg { width: 14px; height: 14px; transition: transform 200ms var(--ease); }
+.caret[aria-expanded="true"] svg { transform: rotate(90deg); }
+.tree-sub { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 260ms var(--ease-out); }
+.tree-sub.open { grid-template-rows: 1fr; }
+.tree-sub > div { overflow: hidden; display: flex; flex-direction: column; gap: 1px; margin-left: 22px; padding-left: 8px; border-left: 1px solid var(--hair-2); }
+.tree-sub button { text-align: left; border: 0; background: none; padding: 6px 10px; font-size: 13.5px; border-radius: var(--r); color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.tree-sub button:hover { background: var(--tint-gray); color: var(--ink); }
+.tree-sub button.on { color: var(--accent-text); font-weight: 600; }
+.side-foot { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid var(--hair); }
+.theme-btn { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 0; background: transparent; border-radius: var(--r); font-size: 14px; color: var(--ink-2); }
+.theme-btn:hover { background: var(--tint-gray); }
+svg.t-moon { display: var(--show-on-light); } svg.t-sun { display: var(--show-on-dark); }
+.side-scrim { display: none; }
+
+.main { min-width: 0; }
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; height: var(--top-h); display: flex; align-items: center; gap: 8px; padding-inline: 12px var(--gut);
+  background: color-mix(in srgb, var(--bg) 84%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 200ms;
+}
+.top.scrolled { border-bottom-color: var(--hair); }
+.crumbs { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); min-width: 0; margin-right: auto; }
+.crumbs a { text-decoration: none; } .crumbs a:hover { color: var(--ink); }
+.crumbs b { font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.progress { position: absolute; left: 0; bottom: -1px; height: 2px; width: 100%; background: var(--red); transform-origin: left; transform: scaleX(0); }
+.top .btn { min-height: 36px; padding: 8px 14px; font-size: 12.5px; }
+.only-mobile { display: none; }
+
+/* ---------- Buttons, tags, props ---------- */
+.btn {
+  position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 46px; padding: 12px 22px; overflow: hidden; isolation: isolate;
+  border-radius: var(--r); border: 1px solid var(--red); background: var(--red); color: #fff; text-decoration: none; line-height: 1;
+  font: 700 13.5px/1 var(--font); font-stretch: 108%; letter-spacing: .04em; text-transform: uppercase; transition: transform 140ms var(--ease), box-shadow 220ms var(--ease), color 220ms, border-color 220ms;
+}
+.btn::before { content: ""; position: absolute; inset: -2px -30px; background: var(--wine); transform: var(--slant) translateX(-115%); transition: transform 420ms var(--ease-out); z-index: -1; }
+.btn:hover::before { transform: var(--slant) translateX(0); }
+.btn:hover { box-shadow: 0 8px 22px rgba(196,39,44,.28); }
+.btn:active { transform: scale(.985); }
+.btn svg.i { width: 16px; height: 16px; stroke-width: 2.2; transition: transform 300ms var(--ease-out); }
+.btn:hover svg.i { transform: translateX(3px); }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--hair-2); }
+.btn.ghost::before { background: var(--ink); }
+.btn.ghost:hover { color: var(--bg); border-color: var(--ink); box-shadow: none; }
+.btn.sm { min-height: 38px; padding: 9px 16px; font-size: 12.5px; }
+.btn.light { background: #fff; color: #1B1516; border-color: #fff; }
+.btn.light::before { background: var(--panel-a); } .btn.light:hover { color: #fff; box-shadow: none; }
+
+.tag { display: inline-flex; align-items: center; gap: 6px; padding: 1px 9px; border-radius: 4px; background: var(--tint-gray); color: var(--ink); font-size: 13.5px; line-height: 1.6; border: 1px solid transparent; white-space: nowrap; }
+.t-red { background: var(--tint-red); } .t-sand { background: var(--tint-sand); } .t-wine { background: var(--tint-wine); }
+button.tag { transition: border-color 140ms, transform 140ms; } button.tag:hover { border-color: var(--hair-2); transform: translateY(-1px); }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.props { display: grid; gap: 2px; margin-top: 32px; max-width: 760px; }
+.prop { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 12px; align-items: center; padding: 6px 8px; border-radius: 4px; transition: background 140ms; }
+.prop:hover { background: var(--sunk); }
+.prop dt { display: flex; align-items: center; gap: 8px; font: 500 12.5px/1.2 var(--mono); color: var(--muted); }
+.prop dt svg.i { width: 15px; height: 15px; }
+.prop dd { min-width: 0; font-size: 15px; }
+.copy { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--hair-2); background: var(--surface); border-radius: var(--r); padding: 4px 9px; font: 500 12px/1.4 var(--mono); color: var(--ink); transition: background 160ms, color 160ms, border-color 160ms; }
+.copy svg.i { width: 13px; height: 13px; }
+.copy:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.copy.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+
+/* ---------- Cover ---------- */
+.cover { position: relative; height: clamp(190px, 25vw, 290px); overflow: hidden; isolation: isolate; background: linear-gradient(120deg, var(--wine) 0%, var(--red) 100%); }
+.cover-wash, .cover-color { position: absolute; inset: 0; }
+.cover-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: 1fr 1fr; }
+.cover-grid img { width: 100%; height: 100%; object-fit: cover; }
+.cover-wash img { filter: grayscale(1) contrast(1.1); mix-blend-mode: luminosity; opacity: .9; }
+.cover-color { --mx: 70%; --my: 60%; --r: 0px; -webkit-mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my), #000 30%, transparent 100%); mask-image: radial-gradient(circle var(--r) at var(--mx) var(--my), #000 30%, transparent 100%); }
+.cover::after { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(180deg, rgba(20,12,12,.35) 0%, rgba(20,12,12,0) 40%, rgba(20,12,12,.35) 100%); }
+.cover-hint { position: absolute; z-index: 2; right: var(--gut); bottom: 14px; display: flex; align-items: center; gap: 10px; font: 500 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.82); }
+.cover-hint i { width: 8px; height: 8px; border-radius: 50%; background: #fff; animation: ping 2s infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(255,255,255,.6); } 70%, 100% { box-shadow: 0 0 0 10px rgba(255,255,255,0); } }
+
+/* ---------- Page blocks ---------- */
+.page { max-width: var(--maxw); margin-inline: auto; padding-inline: var(--gut); }
+.hero { padding-bottom: clamp(36px, 6vw, 64px); }
+.page-icon { position: relative; z-index: 3; width: 96px; height: 96px; margin-top: -48px; border-radius: 16px; background: var(--surface); border: 1px solid var(--hair); box-shadow: var(--shadow); display: grid; place-items: center; }
+.page-icon img { width: 66px; height: auto; }
+.plate { display: inline-block; transform: var(--slant); padding: 5px 14px; background: var(--red); margin: 28px 0 22px 8px; }
+.plate span { display: inline-block; transform: var(--unslant); font: italic 800 12.5px/1.2 var(--font); font-stretch: 110%; text-transform: uppercase; letter-spacing: .02em; color: #fff; }
+h1 { font-weight: 800; font-stretch: 110%; font-size: clamp(2.4rem, 5.4vw, 4.3rem); line-height: .98; letter-spacing: -.035em; max-width: 19ch; text-wrap: balance; }
+h1 em { font-style: italic; color: var(--accent-text); }
+.hero-sub { margin-top: 22px; max-width: 54ch; font-size: clamp(1.05rem, 1.4vw, 1.2rem); color: var(--ink-2); text-wrap: pretty; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+
+.marq { background: var(--red); color: #fff; overflow: hidden; border-block: 1px solid var(--wine); }
+.marq-track { display: flex; width: max-content; animation: marq 34s linear infinite; }
+.marq:hover .marq-track { animation-play-state: paused; }
+.marq-set { display: flex; align-items: center; flex: none; }
+.marq-set span { font: italic 800 clamp(18px, 2.6vw, 26px)/1 var(--font); font-stretch: 110%; text-transform: uppercase; letter-spacing: -.01em; padding: 15px 0; white-space: nowrap; }
+.marq-set i { display: block; width: 12px; height: 24px; background: #fff; transform: var(--slant); margin: 0 clamp(18px, 3vw, 36px); opacity: .9; }
+@keyframes marq { to { transform: translateX(-50%); } }
+
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding-block: clamp(28px, 4vw, 44px); }
+.stat { padding-left: 18px; border-left: 3px solid var(--red); }
+.stat b { display: block; font-weight: 800; font-stretch: 110%; font-size: clamp(2rem, 4.6vw, 3.4rem); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.stat b em { font-style: normal; color: var(--accent-text); }
+.stat > span { display: block; margin-top: 6px; font: 500 12px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+.sec { padding-block: clamp(56px, 8vw, 96px); border-top: 1px solid var(--hair); scroll-margin-top: var(--top-h); }
+.sec-head { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-bottom: clamp(28px, 4vw, 44px); }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-text); }
+h2 { position: relative; font-weight: 800; font-stretch: 108%; font-size: clamp(1.75rem, 3.6vw, 2.7rem); line-height: 1.06; letter-spacing: -.028em; max-width: 27ch; text-wrap: balance; }
+h2 .anchor { position: absolute; left: -1.4em; top: .15em; width: 1.1em; height: 1.1em; display: grid; place-items: center; color: var(--muted); opacity: 0; transition: opacity 140ms; text-decoration: none; }
+h2:hover .anchor, h2 .anchor:focus-visible { opacity: 1; }
+h2 .anchor svg { width: 18px; height: 18px; }
+.lead { max-width: 62ch; color: var(--ink-2); font-size: 1.0625rem; text-wrap: pretty; }
+h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
+.block-label { display: flex; align-items: center; gap: 10px; margin: clamp(40px, 5vw, 64px) 0 16px; font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.block-label::after { content: ""; flex: 1; height: 1px; background: var(--hair); }
+
+/* about */
+.about { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(28px, 5vw, 64px); align-items: start; }
+.about-text { display: flex; flex-direction: column; gap: 18px; }
+.about-text p { color: var(--ink-2); text-wrap: pretty; }
+.about-text p:first-child { font-size: 1.2rem; line-height: 1.5; color: var(--ink); }
+.about-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: calc(var(--top-h) + 20px); }
+.callout { display: flex; gap: 14px; padding: 16px; border-radius: 8px; background: var(--tint-sand); }
+.callout > svg { margin-top: 3px; color: var(--accent-text); }
+.callout p { font-size: .95rem; color: var(--ink); }
+.toggles { display: flex; flex-direction: column; border-top: 1px solid var(--hair); }
+.tgl { border-bottom: 1px solid var(--hair); }
+.tgl > button { width: 100%; display: flex; align-items: center; gap: 10px; padding: 14px 4px; border: 0; background: none; text-align: left; font-weight: 700; font-stretch: 104%; font-size: 1.02rem; }
+.tgl > button svg.i { width: 15px; height: 15px; color: var(--muted); transition: transform 200ms var(--ease); }
+.tgl > button[aria-expanded="true"] svg.i { transform: rotate(90deg); color: var(--accent-text); }
+.tgl > button:hover { color: var(--accent-text); }
+.tgl-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 280ms var(--ease-out); }
+.tgl-body.open { grid-template-rows: 1fr; }
+.tgl-body > div { overflow: hidden; }
+.tgl-body p { padding: 0 4px 16px 29px; color: var(--ink-2); }
+.route { position: relative; border-radius: 10px; background: var(--panel-a); overflow: hidden; color: var(--on-dark); }
+.route svg { display: block; width: 100%; height: auto; }
+.route .dot { fill: rgba(245,243,241,.18); }
+.route .arc { fill: none; stroke: #F0686C; stroke-width: 2; stroke-dasharray: 3 7; animation: flow 1.6s linear infinite; }
+.route .node { fill: #C4272C; stroke: #fff; stroke-width: 2; }
+.route .ring { fill: none; stroke: #F0686C; stroke-width: 2; transform-box: fill-box; transform-origin: center; animation: ring 2.4s ease-out infinite; }
+.route .ring.b { animation-delay: 1.2s; }
+.route text { fill: #fff; font: 700 12px var(--font); font-stretch: 110%; letter-spacing: .04em; text-transform: uppercase; }
+.route .cap { position: absolute; left: 16px; bottom: 12px; font: 500 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: rgba(245,243,241,.55); }
+@keyframes flow { to { stroke-dashoffset: -20; } }
+@keyframes ring { from { transform: scale(.6); opacity: .9; } to { transform: scale(2.6); opacity: 0; } }
+
+/* services: expanding panels */
+.svc { display: flex; gap: 10px; height: clamp(420px, 40vw, 500px); }
+.panel { position: relative; flex: 1 1 0; min-width: 0; overflow: hidden; border-radius: 10px; color: var(--on-dark); background: var(--panel-a); transition: flex-grow 720ms var(--ease-out); isolation: isolate; }
+.panel.alt { background: linear-gradient(165deg, var(--panel-b), #2A0405); }
+.panel::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0; transition: opacity 500ms var(--ease); background: radial-gradient(120% 80% at 0% 100%, rgba(196,39,44,.5), transparent 60%); }
+.panel.on { flex-grow: 4.4; }
+.panel.on::before { opacity: 1; }
+.panel-tg { position: absolute; inset: 0; width: 100%; border: 0; background: none; text-align: left; padding: 22px 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; color: inherit; z-index: 1; }
+.panel-tg svg { width: 34px; height: 34px; fill: none; stroke: currentColor; stroke-width: 2; transition: transform 500ms var(--ease-out), color 300ms; }
+.panel:hover .panel-tg svg { transform: translateY(-3px) scale(1.08); }
+.panel.on .panel-tg { pointer-events: none; height: 84px; inset: 0 0 auto 0; width: auto; }
+.panel.on .panel-tg svg { color: #F0686C; }
+.panel-name { font-weight: 800; font-stretch: 108%; font-size: 19px; letter-spacing: -.01em; line-height: 1.1; writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; transition: opacity 260ms; }
+.panel.on .panel-name { opacity: 0; }
+.panel-body { position: absolute; left: 0; bottom: 0; width: clamp(300px, 38vw, 460px); padding: 0 clamp(20px, 3vw, 34px) clamp(22px, 3vw, 32px); display: flex; flex-direction: column; gap: 14px; align-items: flex-start; opacity: 0; transform: translateY(24px); pointer-events: none; transition: opacity 260ms, transform 500ms var(--ease-out); }
+.panel.on .panel-body { opacity: 1; transform: none; pointer-events: auto; transition-delay: 240ms; }
+.panel-body h3 { font-size: clamp(1.6rem, 3vw, 2.3rem); line-height: 1.04; color: #fff; }
+.panel-body p { color: var(--on-dark-2); max-width: 40ch; }
+.panel-body ul { display: flex; flex-direction: column; gap: 6px; font-size: 14.5px; color: var(--on-dark); }
+.panel-body li { display: flex; align-items: center; gap: 10px; }
+.panel-body li::before { content: ""; width: 8px; height: 14px; background: var(--red); transform: var(--slant); flex: none; }
+
+/* method: board */
+.board { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.col { display: flex; flex-direction: column; gap: 12px; padding: 12px; border-radius: 10px; background: var(--sunk); border: 2px solid transparent; transition: border-color 220ms; cursor: pointer; text-align: left; min-width: 0; }
+.col.on { border-color: var(--red); }
+.col-head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-stretch: 104%; }
+.col-head i { width: 9px; height: 9px; border-radius: 50%; background: var(--hair-2); transition: background 220ms; }
+.col.on .col-head i { background: var(--red); }
+.col-head .n { margin-left: auto; font: 500 12px var(--mono); color: var(--muted); }
+.col-desc { font-size: 14.5px; color: var(--ink-2); }
+.slot { min-height: 0; }
+.slot:empty { display: none; }
+.pcard { background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; box-shadow: var(--shadow); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.pcard h4 { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.pcard h4 svg.i { color: var(--accent-text); }
+.pcard dl { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; align-items: center; }
+.pcard dt { font: 500 11.5px var(--mono); color: var(--muted); }
+.board-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 18px; }
+.board-bar p { color: var(--muted); font-size: 14.5px; flex: 1 1 240px; }
+
+/* cases + formats database */
+.empties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.empty { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 18px; min-height: 120px; padding: 14px; border: 1.5px dashed var(--hair-2); border-radius: 8px; color: var(--muted); }
+.empty p { font-weight: 600; color: var(--ink-2); }
+.db-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-bottom: 12px; border-bottom: 1px solid var(--hair); }
+.views { display: inline-flex; gap: 2px; padding: 3px; border-radius: 8px; background: var(--sunk); }
+.view { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border: 0; border-radius: 6px; background: none; font-size: 14px; color: var(--muted); }
+.view[aria-selected="true"] { background: var(--surface); color: var(--ink); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+.filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.fchip { padding: 4px 11px; border: 1px solid var(--hair-2); background: transparent; border-radius: 999px; font-size: 13.5px; color: var(--ink-2); transition: background 140ms, color 140ms, border-color 140ms; }
+.fchip small { font: 500 11px var(--mono); color: var(--muted); margin-left: 4px; }
+.fchip:hover { border-color: var(--ink); }
+.fchip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.fchip[aria-pressed="true"] small { color: inherit; opacity: .7; }
+.search { margin-left: auto; position: relative; }
+.search svg.i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--muted); }
+.search input { width: min(220px, 100%); padding: 7px 10px 7px 32px; border: 1px solid var(--hair-2); border-radius: var(--r); background: var(--surface); color: var(--ink); font: 400 14px var(--font); }
+.search input:focus { outline: 2px solid var(--red); outline-offset: 1px; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin-top: 18px; }
+.gcard { display: flex; flex-direction: column; text-align: left; padding: 0; border: 1px solid var(--hair); border-radius: 10px; overflow: hidden; background: var(--surface); transition: transform 220ms var(--ease-out), box-shadow 220ms, border-color 220ms; }
+.gcard:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--hair-2); }
+.gcard .th { aspect-ratio: 16 / 10; overflow: hidden; background: var(--panel-a); }
+.gcard .th img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms var(--ease-out); }
+.gcard:hover .th img { transform: scale(1.05); }
+.gcard .tx { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px; }
+.gcard h4 { font-weight: 700; font-stretch: 104%; font-size: 15.5px; line-height: 1.2; }
+.gcard p { font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+.gcard .tag { align-self: flex-start; font-size: 12.5px; }
+.dtable { margin-top: 12px; overflow-x: auto; }
+.dtable table { width: 100%; border-collapse: collapse; min-width: 560px; }
+.dtable th { text-align: left; font: 500 11.5px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid var(--hair); }
+.dtable td { padding: 8px 10px; border-bottom: 1px solid var(--hair); font-size: 14.5px; vertical-align: middle; }
+.dtable tr.row { cursor: pointer; transition: background 140ms; }
+.dtable tr.row:hover { background: var(--sunk); }
+.dtable td:first-child { width: 1%; padding-right: 0; }
+.dtable .mini { width: 52px; height: 34px; border-radius: 4px; object-fit: cover; }
+.dtable .nm { font-weight: 700; }
+.dtable .ds { color: var(--muted); }
+.db-empty { padding: 28px 0; color: var(--muted); }
+.quote { margin: clamp(48px, 7vw, 80px) 0 0; display: flex; gap: 22px; align-items: stretch; }
+.quote::before { content: ""; flex: none; width: 10px; background: var(--red); transform: var(--slant); }
+.quote p { font-weight: 800; font-stretch: 108%; font-size: clamp(1.6rem, 3.6vw, 2.6rem); line-height: 1.08; letter-spacing: -.025em; max-width: 22ch; text-wrap: balance; }
+.sectors { display: flex; flex-wrap: wrap; gap: 8px; }
+.sectors .tag { font-size: 15px; padding: 4px 14px; }
+.sectors .tag[aria-pressed="true"] { background: var(--red); color: #fff; border-color: var(--red); }
+.sector-note { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 16px; min-height: 40px; color: var(--muted); font-size: 14.5px; }
+
+/* team */
+.founders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.person { display: flex; flex-direction: column; gap: 16px; padding: 22px; border: 1px solid var(--hair); border-radius: 12px; background: var(--surface); transition: box-shadow 220ms, border-color 220ms; min-width: 0; }
+.person:hover { box-shadow: var(--shadow); border-color: var(--hair-2); }
+.person-top { display: flex; align-items: center; gap: 14px; }
+.avatar { width: 56px; height: 56px; display: grid; place-items: center; border-radius: 12px; background: linear-gradient(135deg, var(--wine), var(--red)); color: #fff; font: 800 26px/1 var(--font); font-stretch: 110%; }
+.person h3 { font-size: 1.4rem; line-height: 1.1; }
+.person .props { margin-top: 0; }
+.person .prop { grid-template-columns: 100px minmax(0, 1fr); padding: 4px 0; }
+.person p { color: var(--ink-2); font-size: 15px; text-wrap: pretty; }
+.roles { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 16px; }
+.role-list { display: flex; flex-direction: column; gap: 2px; }
+.role-list button { text-align: left; padding: 10px 14px; border: 0; border-radius: var(--r); background: none; font-size: 15px; color: var(--ink-2); display: flex; align-items: center; gap: 10px; }
+.role-list button:hover { background: var(--tint-gray); }
+.role-list button[aria-selected="true"] { background: var(--tint-red); color: var(--ink); font-weight: 700; }
+.role-panel { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 10px; min-height: 220px; padding: 26px; border-radius: 12px; background: var(--panel-a); color: var(--on-dark); }
+.role-panel .big { position: absolute; right: 18px; top: -26px; font: italic 800 clamp(8rem, 18vw, 13rem)/1 var(--font); font-stretch: 110%; color: rgba(196,39,44,.35); pointer-events: none; transition: transform 500ms var(--ease-out); }
+.role-panel h3 { font-size: clamp(1.5rem, 3vw, 2rem); color: #fff; position: relative; }
+.role-panel p { color: var(--on-dark-2); max-width: 44ch; position: relative; }
+.note-line { margin-top: 18px; color: var(--muted); font-size: 14.5px; max-width: 62ch; }
+
+/* contact */
+.contact { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: clamp(24px, 4vw, 48px); align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 12px; }
+.card.raised { box-shadow: var(--shadow); padding: clamp(18px, 3vw, 32px); }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.form .full { grid-column: 1 / -1; }
+.form h3 { font-size: 1.35rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.chip { position: relative; }
+.chip input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+.chip span { display: inline-block; padding: 7px 14px; border: 1px solid var(--hair-2); border-radius: 999px; font-size: 14px; color: var(--ink); transition: background 200ms, color 200ms, border-color 200ms; }
+.chip input:checked + span { background: var(--red); border-color: var(--red); color: #fff; }
+.chip input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 2px; }
+.chip span:hover { border-color: var(--red); }
+.field { position: relative; }
+.field input, .field textarea { width: 100%; background: var(--bg); color: var(--ink); border: 1px solid var(--hair-2); border-radius: var(--r); padding: 23px 14px 8px; font: 400 16px/1.4 var(--font); min-height: 54px; transition: border-color 140ms, box-shadow 140ms; }
+.field textarea { min-height: 120px; resize: vertical; }
+.field label { position: absolute; left: 14px; top: 16px; font-size: 16px; color: var(--muted); pointer-events: none; transform-origin: left top; transition: transform 200ms var(--ease), color 200ms; }
+.field input:focus ~ label, .field input:not(:placeholder-shown) ~ label, .field textarea:focus ~ label, .field textarea:not(:placeholder-shown) ~ label { transform: translateY(-10px) scale(.75); }
+.field input:focus, .field textarea:focus { outline: 0; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(196,39,44,.25); }
+.field .msg { display: none; margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--accent-text); }
+.field.err .msg { display: block; } .field.err input, .field.err textarea { border-color: var(--red); }
+.hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.form-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 18px; }
+.form-foot small { color: var(--muted); font-size: 13px; max-width: 34ch; }
+.done, .fail { display: none; flex-direction: column; align-items: flex-start; gap: 14px; padding: 12px 0; }
+.card.sent .form, .card.failed .form { display: none; }
+.card.sent .done, .card.failed .fail { display: flex; }
+.done svg { width: 56px; height: 56px; }
+.done circle, .done path { fill: none; stroke: var(--ok); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 160; stroke-dashoffset: 160; }
+.card.sent .done circle { animation: draw 700ms var(--ease-out) forwards; } .card.sent .done path { animation: draw 500ms 350ms var(--ease-out) forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.done h3, .fail h3 { font-size: 1.5rem; }
+.fail p { color: var(--ink-2); max-width: 46ch; }
+.fail-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.chan { display: flex; flex-direction: column; gap: 12px; }
+.chan .card { padding: 6px 18px; position: relative; overflow: hidden; }
+.chan .card::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 3px; background: var(--red); transform-origin: left; transform: scaleX(.14); transition: transform 500ms var(--ease-out); }
+.chan .card:hover::before { transform: scaleX(1); }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid var(--hair); min-width: 0; }
+.crow:first-child { border-top: 0; }
+.crow div { min-width: 0; }
+.crow small { display: block; font: 500 11.5px/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.crow span, .crow a.val { font-weight: 600; overflow-wrap: anywhere; text-decoration: none; }
+.crow a.val:hover { color: var(--accent-text); text-decoration: underline; }
+.crow .go { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1.4 var(--mono); padding: 4px 9px; border: 1px solid var(--hair-2); border-radius: var(--r); text-decoration: none; color: var(--ink); flex: none; }
+.crow .go:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+/* footer */
+.foot { border-top: 1px solid var(--hair); padding-block: 48px 28px; }
+.foot-top { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 28px; }
+.foot img { height: 26px; width: auto; }
+.foot p { color: var(--muted); max-width: 34ch; margin-top: 14px; font-size: 14.5px; }
+.foot h4 { font: 500 11.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.foot nav { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; align-items: flex-start; }
+.foot nav a { text-decoration: none; overflow-wrap: anywhere; } .foot nav a:hover { color: var(--accent-text); }
+.foot-bot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 13px; color: var(--muted); }
+
+/* overlays */
+.scrim { position: fixed; inset: 0; z-index: 64; background: rgba(15,10,10,.5); opacity: 0; pointer-events: none; transition: opacity 240ms; }
+.scrim.on { opacity: 1; pointer-events: auto; }
+.peek { position: fixed; z-index: 70; inset: 0 0 0 auto; width: min(460px, 100%); background: var(--surface); box-shadow: var(--shadow-lg); border-left: 1px solid var(--hair); display: flex; flex-direction: column; transform: translateX(105%); visibility: hidden; transition: transform 380ms var(--ease-out), visibility 0s 380ms; padding-top: env(safe-area-inset-top, 0px); }
+.peek.on { transform: none; visibility: visible; transition: transform 380ms var(--ease-out), visibility 0s; }
+.peek-bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; border-bottom: 1px solid var(--hair); font: 500 12px var(--mono); color: var(--muted); }
+.peek-body { padding: 20px; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
+.peek-body img { width: 100%; max-height: 260px; object-fit: cover; border-radius: 10px; }
+.peek-body h3 { font-size: 1.8rem; line-height: 1.05; }
+.peek-body p { color: var(--ink-2); }
+.pal { position: fixed; z-index: 80; left: 50%; top: 12vh; width: min(620px, calc(100% - 32px)); transform: translate(-50%, -8px); opacity: 0; visibility: hidden; background: var(--surface); border: 1px solid var(--hair-2); border-radius: 12px; box-shadow: var(--shadow-lg); overflow: hidden; transition: opacity 180ms, transform 240ms var(--ease-out), visibility 0s 240ms; }
+.pal.on { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity 180ms, transform 240ms var(--ease-out), visibility 0s; }
+.pal-in { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--hair); color: var(--muted); }
+.pal-in input { flex: 1; min-width: 0; border: 0; background: transparent; color: var(--ink); font: 400 17px var(--font); }
+.pal-in input:focus { outline: 0; }
+.pal-list { max-height: min(52vh, 420px); overflow-y: auto; padding: 6px; }
+.pal-g { padding: 10px 10px 4px; font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.pal-item { display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px; border: 0; background: none; border-radius: var(--r); text-align: left; font-size: 15px; }
+.pal-item small { margin-left: auto; color: var(--muted); font-size: 12.5px; }
+.pal-item[aria-selected="true"] { background: var(--tint-red); }
+.pal-empty { padding: 22px 14px; color: var(--muted); }
+.toast { position: fixed; z-index: 90; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 300ms var(--ease-out); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  .about, .contact, .roles { grid-template-columns: minmax(0, 1fr); }
+  .about-side { position: static; }
+  .board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foot-top { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .foot-top > :first-child { grid-column: 1 / -1; }
+  .role-list { flex-direction: row; flex-wrap: wrap; }
+}
+@media (max-width: 900px) {
+  .app, body.side-off .app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; inset: 0 auto 0 0; width: min(300px, 86vw); transform: translateX(-100%); visibility: hidden; transition: transform 320ms var(--ease-out), visibility 0s 320ms; box-shadow: var(--shadow-lg); }
+  body.side-off .side { transform: translateX(-100%); }
+  body.side-open .side { transform: none; visibility: visible; transition: transform 320ms var(--ease-out), visibility 0s; z-index: 66; }
+  .side-scrim { display: block; position: fixed; inset: 0; z-index: 65; background: rgba(15,10,10,.5); opacity: 0; pointer-events: none; transition: opacity 240ms; }
+  body.side-open .side-scrim { opacity: 1; pointer-events: auto; }
+  .only-mobile { display: inline-grid; }
+  #sideCollapse { display: none; }
+  h2 .anchor { display: none; }
+}
+@media (max-width: 820px) {
+  .svc { flex-direction: column; height: auto; }
+  .panel { flex: none; height: 76px; transition: height 640ms var(--ease-out); }
+  .panel.on { height: 380px; }
+  .panel-name { writing-mode: horizontal-tb; transform: none; }
+  .panel-tg { flex-direction: row; align-items: center; height: 76px; padding: 0 18px; gap: 14px; justify-content: flex-start; }
+  .panel.on .panel-tg { height: 76px; }
+  .panel-body { width: 100%; }
+}
+@media (max-width: 640px) {
+  .stats { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .board { grid-template-columns: minmax(0, 1fr); }
+  .empties, .founders { grid-template-columns: minmax(0, 1fr); }
+  .form { grid-template-columns: minmax(0, 1fr); }
+  .prop { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .search { margin-left: 0; width: 100%; } .search input { width: 100%; }
+  .cover-grid { grid-template-columns: repeat(4, 1fr); }
+  .cover-grid img:nth-child(n+9) { display: none; }
+  .cover-hint { display: none; }
+  .top .btn { display: none; }
+  .top .only-wide { display: none; }
+  .foot-top { grid-template-columns: minmax(0, 1fr); }
+  .quote::before { width: 8px; }
+  .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .gcard .tx { padding: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .marq-track, .route .arc, .route .ring, .cover-hint i { animation: none !important; }
+  .btn::before { transition: none; }
+  .app, .side, .panel, .peek, .pal { transition-duration: 1ms !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></symbol>
+    <symbol id="i-about" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="13" rx="1"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></symbol>
+    <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16"/></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M2.5 20c.8-3.5 3.3-5.5 6.5-5.5s5.700 2 6.500 5.500"/><path d="M16 14.500c2.700-.2 4.600 1.300 5.500 4.500"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.200 7-11.500A7 7 0 0 0 5 9.500C5 14.800 12 21 12 21z"/><circle cx="12" cy="9.500" r="2.500"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.900 4.900l1.400 1.400M17.700 17.700l1.400 1.400M2 12h2M20 12h2M4.900 19.100l1.400-1.400M17.700 6.300l1.400-1.400"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.500A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.500l4.500 4.500L19 7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-hash" viewBox="0 0 24 24"><path d="M5 9h14M5 15h14M10 4L8 20M16 4l-2 16"/></symbol>
+    <symbol id="i-tip" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.500 10.900c.6.500 1 1.200 1 2.100h5c0-.9.400-1.600 1-2.100A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-wa" viewBox="0 0 24 24"><path d="M4 20l1.300-4.300A8 8 0 1 1 8.700 19L4 20Z"/></symbol>
+    <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.500 6.500h.01"/></symbol>
+    <symbol id="i-in" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-5M12 13c0-1.500 1-2 2-2s2 .8 2 2.500V16"/></symbol>
+    <symbol id="s-perf" viewBox="0 0 48 48"><polyline points="4,38 16,26 26,32 44,10" stroke-linecap="square" stroke-linejoin="miter"/><polyline points="34,10 44,10 44,20" stroke-linecap="square" stroke-linejoin="miter"/></symbol>
+    <symbol id="s-brand" viewBox="0 0 48 48"><rect x="10" y="10" width="20" height="20" transform="rotate(45 20 20)"/><circle cx="30" cy="30" r="12"/></symbol>
+    <symbol id="s-social" viewBox="0 0 48 48"><rect x="6" y="6" width="10" height="10"/><rect x="19" y="6" width="10" height="10"/><rect x="32" y="6" width="10" height="10"/><rect x="6" y="19" width="10" height="10"/><rect x="19" y="19" width="10" height="10" fill="currentColor"/><rect x="32" y="19" width="10" height="10"/><rect x="6" y="32" width="10" height="10"/><rect x="19" y="32" width="10" height="10"/><rect x="32" y="32" width="10" height="10"/></symbol>
+    <symbol id="s-content" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36"/><path d="M19 15 L34 24 L19 33 Z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="s-traffic" viewBox="0 0 48 48"><circle cx="20" cy="28" r="14"/><circle cx="20" cy="28" r="5"/><polyline points="26,22 42,6" stroke-linecap="square"/><polyline points="32,6 42,6 42,16" stroke-linecap="square"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="side" id="side" aria-label="Navegação do site">
+    <div class="side-head">
+      <a class="side-brand" href="#inicio" aria-label="LAX, voltar ao início">
+        <img class="logo-l" src="assets/img/logo/lax-dark.png" alt="LAX" width="52" height="26" />
+        <img class="logo-d" src="assets/img/logo/lax-color.png" alt="" aria-hidden="true" width="52" height="26" />
+      </a>
+      <button class="icon-btn" type="button" id="sideCollapse" aria-label="Recolher barra lateral"><svg class="i"><use href="#i-panel"/></svg></button>
+    </div>
+    <button class="side-search" type="button" data-open-palette><svg class="i"><use href="#i-search"/></svg><span>Buscar</span><kbd>Ctrl K</kbd></button>
+    <p class="tree-label">Páginas</p>
+    <nav class="tree" aria-label="Seções">
+      <div class="tree-row"><a href="#inicio" data-nav="inicio"><svg class="i"><use href="#i-home"/></svg>Início</a></div>
+      <div class="tree-row"><a href="#quem-somos" data-nav="quem-somos"><svg class="i"><use href="#i-about"/></svg>Quem somos</a></div>
+      <div>
+        <div class="tree-row"><a href="#servicos" data-nav="servicos"><svg class="i"><use href="#i-layers"/></svg>O que fazemos</a><button class="caret" type="button" id="svcCaret" aria-expanded="false" aria-controls="svcSub" aria-label="Mostrar serviços"><svg class="i"><use href="#i-chev"/></svg></button></div>
+        <div class="tree-sub" id="svcSub"><div>
+          <button type="button" data-svc="0">Performance</button>
+          <button type="button" data-svc="1">Branding</button>
+          <button type="button" data-svc="2">Social Media</button>
+          <button type="button" data-svc="3">Criação de Conteúdo</button>
+          <button type="button" data-svc="4">Tráfego Pago</button>
+        </div></div>
+      </div>
+      <div class="tree-row"><a href="#metodo" data-nav="metodo"><svg class="i"><use href="#i-board"/></svg>Como trabalhamos</a></div>
+      <div class="tree-row"><a href="#cases" data-nav="cases"><svg class="i"><use href="#i-grid"/></svg>Cases e formatos</a></div>
+      <div class="tree-row"><a href="#time" data-nav="time"><svg class="i"><use href="#i-team"/></svg>Time</a></div>
+      <div class="tree-row"><a href="#contato" data-nav="contato"><svg class="i"><use href="#i-mail"/></svg>Contato</a></div>
+    </nav>
+    <div class="side-foot">
+      <button class="theme-btn" type="button" id="themeBtn"><svg class="i t-moon"><use href="#i-moon"/></svg><svg class="i t-sun"><use href="#i-sun"/></svg><span id="themeLabel">Alternar tema</span></button>
+      <a class="btn sm" href="#contato">Vamos conversar <svg class="i"><use href="#i-arrow"/></svg></a>
+    </div>
+  </aside>
+  <div class="side-scrim" id="sideScrim"></div>
+
+  <div class="main">
+    <header class="top" id="top">
+      <button class="icon-btn" type="button" id="sideToggle" aria-label="Abrir ou fechar a barra lateral" aria-controls="side"><svg class="i"><use href="#i-menu"/></svg></button>
+      <nav class="crumbs" aria-label="Você está em"><a href="#inicio">LAX</a><span aria-hidden="true">/</span><b id="crumb">Início</b></nav>
+      <button class="icon-btn" type="button" data-open-palette aria-label="Buscar no site"><svg class="i"><use href="#i-search"/></svg></button>
+      <button class="icon-btn only-mobile" type="button" id="themeBtnTop" aria-label="Alternar tema"><svg class="i t-moon"><use href="#i-moon"/></svg><svg class="i t-sun"><use href="#i-sun"/></svg></button>
+      <a class="btn" href="#contato">Vamos conversar</a>
+      <div class="progress" id="progress"></div>
+    </header>
+
+    <main id="main">
+      <section id="inicio" data-sec data-title="Início">
+        <div class="cover" id="cover">
+          <div class="cover-wash"><div class="cover-grid">
+            <img src="assets/img/formats/video.jpg" alt="" /><img src="assets/img/formats/identidade.jpg" alt="" /><img src="assets/img/formats/trafego.jpg" alt="" /><img src="assets/img/formats/social.jpg" alt="" /><img src="assets/img/formats/foto.jpg" alt="" />
+            <img src="assets/img/formats/landing.jpg" alt="" /><img src="assets/img/formats/copy.jpg" alt="" /><img src="assets/img/formats/branding.jpg" alt="" /><img src="assets/img/formats/anuncio.jpg" alt="" /><img src="assets/img/formats/email.jpg" alt="" />
+          </div></div>
+          <div class="cover-color" aria-hidden="true"></div>
+          <div class="cover-hint" aria-hidden="true"><i></i>Passe o mouse na capa</div>
+        </div>
+        <div class="page hero">
+          <div class="page-icon">
+            <img class="logo-l" src="assets/img/logo/lax-dark.png" alt="LAX" width="66" height="33" />
+            <img class="logo-d" src="assets/img/logo/lax-color.png" alt="" aria-hidden="true" width="66" height="33" />
+          </div>
+          <span class="plate"><span>Assessoria de marketing completa</span></span>
+          <h1>Marketing completo, <em>sem depender de mais ninguém</em>.</h1>
+          <p class="hero-sub">Performance, branding, social media, conteúdo e tráfego pago, um time só, do diagnóstico ao resultado.</p>
+          <div class="hero-cta">
+            <a class="btn" href="#contato">Vamos conversar <svg class="i"><use href="#i-arrow"/></svg></a>
+            <a class="btn ghost" href="#servicos">Ver serviços</a>
+          </div>
+          <dl class="props">
+            <div class="prop"><dt><svg class="i"><use href="#i-layers"/></svg>Serviços</dt><dd class="tags">
+              <button type="button" class="tag t-red" data-svc="0">Performance</button><button type="button" class="tag t-wine" data-svc="1">Branding</button><button type="button" class="tag t-sand" data-svc="2">Social Media</button><button type="button" class="tag t-red" data-svc="3">Conteúdo</button><button type="button" class="tag t-wine" data-svc="4">Tráfego Pago</button>
+            </dd></div>
+            <div class="prop"><dt><svg class="i"><use href="#i-pin"/></svg>Presença</dt><dd class="tags"><span class="tag">Brasil</span><span class="tag">Europa</span></dd></div>
+            <div class="prop"><dt><svg class="i"><use href="#i-team"/></svg>Fundadores</dt><dd class="tags"><a class="tag t-sand" href="#time" style="text-decoration:none">Nathan Rebechi</a><a class="tag t-sand" href="#time" style="text-decoration:none">Matheus Lacerda</a></dd></div>
+            <div class="prop"><dt><svg class="i"><use href="#i-mail"/></svg>E-mail</dt><dd class="tags"><a href="mailto:laxassessoria@outlook.com" style="text-decoration:none;font-weight:600">laxassessoria@outlook.com</a><button type="button" class="copy" data-copy="laxassessoria@outlook.com" data-what="E-mail"><svg class="i"><use href="#i-copy"/></svg>Copiar</button></dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <div class="marq" aria-hidden="true">
+        <div class="marq-track">
+          <div class="marq-set"><span>Performance</span><i></i><span>Branding</span><i></i><span>Social Media</span><i></i><span>Conteúdo</span><i></i><span>Tráfego Pago</span><i></i></div>
+          <div class="marq-set"><span>Performance</span><i></i><span>Branding</span><i></i><span>Social Media</span><i></i><span>Conteúdo</span><i></i><span>Tráfego Pago</span><i></i></div>
+        </div>
+      </div>
+
+      <div class="page">
+        <div class="stats" aria-label="A LAX em números">
+          <div class="stat"><b><span data-count="3">3</span><em>+</em></b><span>Anos de trajetória</span></div>
+          <div class="stat"><b><span data-count="150">150</span><em>+</em></b><span>Clientes atendidos</span></div>
+          <div class="stat"><b><span data-count="5">5</span><em>+</em></b><span>Países</span></div>
+        </div>
+
+        <section class="sec" id="quem-somos" data-sec data-title="Quem somos">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-about"/></svg>Quem somos</p>
+            <h2>Comunicação que aproxima. Conexões que fazem crescer.<a class="anchor" href="#quem-somos" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+          </div>
+          <div class="about">
+            <div class="about-text">
+              <p>A LAX nasceu para conectar marcas e pessoas por meio de uma comunicação clara, criativa e próxima. Acreditamos que toda empresa tem uma história, uma identidade e algo relevante para compartilhar, e nosso trabalho é encontrar a melhor forma de levar essa mensagem a quem precisa conhecê-la.</p>
+              <p>Pra nós, uma boa comunicação começa com escuta: buscamos conhecer cada cliente de perto, entender sua trajetória, seus desafios e as pessoas que fazem parte do negócio. É dessa troca que nascem estratégias que respeitam a identidade da marca e fazem sentido pro público.</p>
+              <p>Valorizamos a parceria no dia a dia, o diálogo aberto e a participação em cada etapa do trabalho. Unimos estratégia, criatividade e comunicação pra ajudar marcas a expressar seu valor e fortalecer seus relacionamentos, porque o crescimento se constrói com pessoas, confiança e conexões que permanecem.</p>
+            </div>
+            <div class="about-side">
+              <div class="callout"><svg class="i"><use href="#i-tip"/></svg><p>Nosso trabalho começa pela escuta. Abra cada princípio para ver como isso aparece no dia a dia.</p></div>
+              <div class="toggles">
+                <div class="tgl"><button type="button" aria-expanded="true"><svg class="i"><use href="#i-chev"/></svg>Escuta antes de agir</button><div class="tgl-body open"><div><p>Entendemos a trajetória e os desafios de cada cliente.</p></div></div></div>
+                <div class="tgl"><button type="button" aria-expanded="false"><svg class="i"><use href="#i-chev"/></svg>Parceria no dia a dia</button><div class="tgl-body"><div><p>Diálogo aberto em cada etapa do projeto.</p></div></div></div>
+                <div class="tgl"><button type="button" aria-expanded="false"><svg class="i"><use href="#i-chev"/></svg>Estratégia pra qualquer setor</button><div class="tgl-body"><div><p>Adaptamos a estratégia pra qualquer setor, sem abrir mão do padrão de entrega.</p></div></div></div>
+              </div>
+              <div class="route" aria-label="Esquema de atuação entre Brasil e Europa">
+                <svg viewBox="0 0 360 190" role="img" aria-label="Rota ilustrativa ligando Brasil e Europa">
+                  <defs><pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle class="dot" cx="2" cy="2" r="1.3"/></pattern>
+                    <radialGradient id="fade" cx="50%" cy="50%" r="60%"><stop offset="40%" stop-color="#fff"/><stop offset="100%" stop-color="#000"/></radialGradient>
+                    <mask id="fm"><rect width="360" height="190" fill="url(#fade)"/></mask></defs>
+                  <rect width="360" height="190" fill="url(#dots)" mask="url(#fm)"/>
+                  <path class="arc" d="M 88 128 Q 180 14 284 56"/>
+                  <circle class="ring" cx="88" cy="128" r="9"/><circle class="ring b" cx="284" cy="56" r="9"/>
+                  <circle class="node" cx="88" cy="128" r="7"/><circle class="node" cx="284" cy="56" r="7"/>
+                  <text x="88" y="156" text-anchor="middle">Brasil</text><text x="284" y="84" text-anchor="middle">Europa</text>
+                </svg>
+                <span class="cap">Esquema ilustrativo, sem escala</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="sec" id="servicos" data-sec data-title="O que fazemos">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-layers"/></svg>O que fazemos</p>
+            <h2>Sem departamentos isolados. Sem terceirizar pedaço nenhum da sua marca.<a class="anchor" href="#servicos" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+            <p class="lead">Passe o mouse ou toque em um serviço pra ver o que está dentro dele.</p>
+          </div>
+          <div class="svc" id="svc">
+            <article class="panel on" data-name="Performance">
+              <button class="panel-tg" type="button" aria-expanded="true" aria-controls="p0"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#s-perf"/></svg><span class="panel-name">Performance</span></button>
+              <div class="panel-body" id="p0"><h3>Performance</h3><p>Metas, funis e métricas guiando cada decisão, nada de achismo.</p><ul><li>Metas e KPIs claros</li><li>Funil mapeado e testado</li></ul><button class="btn sm" type="button" data-pick="Performance">Falar sobre isso <svg class="i"><use href="#i-arrow"/></svg></button></div>
+            </article>
+            <article class="panel alt" data-name="Branding">
+              <button class="panel-tg" type="button" aria-expanded="false" aria-controls="p1"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#s-brand"/></svg><span class="panel-name">Branding</span></button>
+              <div class="panel-body" id="p1"><h3>Branding</h3><p>Identidade visual e verbal, posicionamento e uma marca que se reconhece de longe.</p><ul><li>Identidade visual e verbal</li><li>Posicionamento e naming</li></ul><button class="btn sm" type="button" data-pick="Branding">Falar sobre isso <svg class="i"><use href="#i-arrow"/></svg></button></div>
+            </article>
+            <article class="panel" data-name="Social Media">
+              <button class="panel-tg" type="button" aria-expanded="false" aria-controls="p2"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#s-social"/></svg><span class="panel-name">Social Media</span></button>
+              <div class="panel-body" id="p2"><h3>Social Media</h3><p>Planejamento, calendário e gestão de redes com voz própria.</p><ul><li>Calendário e gestão de comunidade</li><li>Pauta e métricas sociais</li></ul><button class="btn sm" type="button" data-pick="Social Media">Falar sobre isso <svg class="i"><use href="#i-arrow"/></svg></button></div>
+            </article>
+            <article class="panel alt" data-name="Criação de Conteúdo">
+              <button class="panel-tg" type="button" aria-expanded="false" aria-controls="p3"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#s-content"/></svg><span class="panel-name">Conteúdo</span></button>
+              <div class="panel-body" id="p3"><h3>Criação de Conteúdo</h3><p>Peças, vídeos, artes e copy que sustentam a comunicação em qualquer canal.</p><ul><li>Direção de arte e vídeo</li><li>Copywriting</li></ul><button class="btn sm" type="button" data-pick="Conteúdo">Falar sobre isso <svg class="i"><use href="#i-arrow"/></svg></button></div>
+            </article>
+            <article class="panel" data-name="Tráfego Pago">
+              <button class="panel-tg" type="button" aria-expanded="false" aria-controls="p4"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#s-traffic"/></svg><span class="panel-name">Tráfego Pago</span></button>
+              <div class="panel-body" id="p4"><h3>Tráfego Pago</h3><p>Mídia paga, segmentação e otimização contínua de investimento.</p><ul><li>Meta Ads e Google Ads</li><li>Segmentação e otimização contínua</li></ul><button class="btn sm" type="button" data-pick="Tráfego Pago">Falar sobre isso <svg class="i"><use href="#i-arrow"/></svg></button></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="sec" id="metodo" data-sec data-title="Como trabalhamos">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-board"/></svg>Como trabalhamos</p>
+            <h2>Um método, não uma lista de tarefas soltas.<a class="anchor" href="#metodo" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+            <p class="lead">Acompanhe um projeto de exemplo passando pelas quatro etapas. Clique em uma coluna ou avance você mesmo.</p>
+          </div>
+          <div class="board" id="board">
+            <div class="col on" role="button" tabindex="0" aria-label="Etapa Diagnóstico"><div class="col-head"><i></i>Diagnóstico<span class="n">1/4</span></div><p class="col-desc">Entendemos a marca, o momento e onde o marketing está travando o crescimento.</p><div class="slot"></div></div>
+            <div class="col" role="button" tabindex="0" aria-label="Etapa Estratégia"><div class="col-head"><i></i>Estratégia<span class="n">2/4</span></div><p class="col-desc">Definimos prioridades, canais e metas, sem empacotar solução genérica.</p><div class="slot"></div></div>
+            <div class="col" role="button" tabindex="0" aria-label="Etapa Execução"><div class="col-head"><i></i>Execução<span class="n">3/4</span></div><p class="col-desc">Colocamos performance, branding, social e conteúdo pra rodar juntos.</p><div class="slot"></div></div>
+            <div class="col" role="button" tabindex="0" aria-label="Etapa Otimização"><div class="col-head"><i></i>Otimização<span class="n">4/4</span></div><p class="col-desc">Medimos, ajustamos e voltamos pro diagnóstico. Sempre.</p><div class="slot"></div></div>
+          </div>
+          <div class="board-bar">
+            <button class="btn sm" type="button" id="boardNext">Avançar etapa <svg class="i"><use href="#i-arrow"/></svg></button>
+            <p id="boardStatus" aria-live="polite">Projeto de exemplo na etapa Diagnóstico.</p>
+          </div>
+        </section>
+
+        <section class="sec" id="cases" data-sec data-title="Cases e formatos">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-grid"/></svg>Cases</p>
+            <h2>Resultado em cada formato que produzimos.<a class="anchor" href="#cases" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+            <p class="lead">Enquanto reunimos os primeiros cases publicados, veja abaixo os formatos que já dominamos, do vídeo à campanha de tráfego.</p>
+          </div>
+          <div class="empties">
+            <div class="empty"><span class="tag t-sand">Em produção</span><p>Case em produção</p></div>
+            <div class="empty"><span class="tag t-sand">Em produção</span><p>Case em produção</p></div>
+            <div class="empty"><span class="tag t-sand">Em produção</span><p>Case em produção</p></div>
+          </div>
+
+          <p class="block-label">Formatos</p>
+          <div class="db-bar">
+            <div class="views" role="tablist" aria-label="Modo de exibição">
+              <button class="view" role="tab" type="button" aria-selected="true" data-view="gallery"><svg class="i"><use href="#i-grid"/></svg>Galeria</button>
+              <button class="view" role="tab" type="button" aria-selected="false" data-view="table"><svg class="i"><use href="#i-table"/></svg>Tabela</button>
+            </div>
+            <div class="filters" id="filters" role="group" aria-label="Filtrar por área"></div>
+            <label class="search"><span class="sr">Buscar formato</span><svg class="i"><use href="#i-search"/></svg><input id="fsearch" type="search" placeholder="Buscar formato" autocomplete="off" /></label>
+          </div>
+          <div class="gallery" id="gallery">
+            <button class="gcard" type="button" data-key="video" data-area="Conteúdo"><span class="th"><img src="assets/img/formats/video.jpg" alt="Pessoa gravando um vídeo com celular em tripé e ring light" loading="lazy" /></span><span class="tx"><h4>Vídeo</h4><p>Peças em vídeo prontas pra qualquer feed, do teaser ao anúncio.</p><span class="tag t-red">Conteúdo</span></span></button>
+            <button class="gcard" type="button" data-key="social" data-area="Social Media"><span class="th"><img src="assets/img/formats/social.jpg" alt="Pessoa gerenciando redes sociais no celular e no notebook" loading="lazy" /></span><span class="tx"><h4>Social Media</h4><p>Grade, stories e legendas com a mesma voz em todo canal.</p><span class="tag t-sand">Social Media</span></span></button>
+            <button class="gcard" type="button" data-key="landing" data-area="Performance"><span class="th"><img src="assets/img/formats/landing.jpg" alt="Mãos digitando com uma landing page aberta na tela do notebook" loading="lazy" /></span><span class="tx"><h4>Landing Page</h4><p>Página feita pra converter tráfego de campanha em contato.</p><span class="tag t-wine">Performance</span></span></button>
+            <button class="gcard" type="button" data-key="identidade" data-area="Branding"><span class="th"><img src="assets/img/formats/identidade.jpg" alt="Mesa de design com paleta de cores, sketchbook de logo e cartela pantone" loading="lazy" /></span><span class="tx"><h4>Identidade Visual</h4><p>Paleta, tipografia e sistema gráfico que sustentam a marca.</p><span class="tag">Branding</span></span></button>
+            <button class="gcard" type="button" data-key="trafego" data-area="Tráfego Pago"><span class="th"><img src="assets/img/formats/trafego.jpg" alt="Tela mostrando dashboard de métricas de campanha de tráfego" loading="lazy" /></span><span class="tx"><h4>Campanha de Tráfego</h4><p>Segmentação e mídia paga apontadas pro objetivo certo.</p><span class="tag t-red">Tráfego Pago</span></span></button>
+            <button class="gcard" type="button" data-key="foto" data-area="Conteúdo"><span class="th"><img src="assets/img/formats/foto.jpg" alt="Fotógrafo montando iluminação de estúdio pra fotografar um produto" loading="lazy" /></span><span class="tx"><h4>Fotografia de Produto</h4><p>Imagem de catálogo com luz e composição consistentes.</p><span class="tag t-red">Conteúdo</span></span></button>
+            <button class="gcard" type="button" data-key="branding" data-area="Branding"><span class="th"><img src="assets/img/formats/branding.jpg" alt="Materiais de identidade de marca: cartões, caderno e amostras" loading="lazy" /></span><span class="tx"><h4>Branding</h4><p>Posicionamento e discurso por trás de cada peça que sai.</p><span class="tag">Branding</span></span></button>
+            <button class="gcard" type="button" data-key="copy" data-area="Conteúdo"><span class="th"><img src="assets/img/formats/copy.jpg" alt="Pessoa escrevendo roteiro à mão ao lado de um notebook" loading="lazy" /></span><span class="tx"><h4>Roteiro &amp; Copy</h4><p>Texto que carrega a estratégia em qualquer formato.</p><span class="tag t-red">Conteúdo</span></span></button>
+            <button class="gcard" type="button" data-key="email" data-area="Performance"><span class="th"><img src="assets/img/formats/email.jpg" alt="Tela de notebook mostrando um template de e-mail marketing sendo criado" loading="lazy" /></span><span class="tx"><h4>E-mail Marketing</h4><p>Fluxos e disparos que mantêm a base aquecida.</p><span class="tag t-wine">Performance</span></span></button>
+            <button class="gcard" type="button" data-key="anuncio" data-area="Tráfego Pago"><span class="th"><img src="assets/img/formats/anuncio.jpg" alt="Designer criando uma peça de anúncio em um monitor grande" loading="lazy" /></span><span class="tx"><h4>Design de Anúncio</h4><p>Arte estática pensada pra performar em campanha.</p><span class="tag t-red">Tráfego Pago</span></span></button>
+          </div>
+          <div class="dtable" id="dtable" hidden><table><thead><tr><th></th><th>Nome</th><th>Descrição</th><th>Área</th></tr></thead><tbody id="dbody"></tbody></table></div>
+          <p class="db-empty" id="dbEmpty" hidden>Nenhum formato encontrado. Tente outra palavra ou limpe o filtro.</p>
+
+          <div class="quote"><p>Cada projeto começa do zero, sem fórmula pronta.</p></div>
+
+          <p class="block-label">Onde já atuamos</p>
+          <p class="lead" style="margin-bottom:18px">Adaptamos a estratégia a cada setor, sem abrir mão do padrão de entrega. Marque o seu.</p>
+          <div class="sectors" id="sectors">
+            <button type="button" class="tag" aria-pressed="false">E-commerce</button><button type="button" class="tag" aria-pressed="false">Serviços</button><button type="button" class="tag" aria-pressed="false">Saúde e bem-estar</button><button type="button" class="tag" aria-pressed="false">Educação</button><button type="button" class="tag" aria-pressed="false">Moda</button><button type="button" class="tag" aria-pressed="false">Alimentação</button><button type="button" class="tag" aria-pressed="false">Tecnologia</button><button type="button" class="tag" aria-pressed="false">Eventos</button>
+          </div>
+          <div class="sector-note" id="sectorNote" aria-live="polite"></div>
+        </section>
+
+        <section class="sec" id="time" data-sec data-title="Time">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-team"/></svg>Time</p>
+            <h2>Um time preparado pra cuidar de cada frente.<a class="anchor" href="#time" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+            <p class="lead">Preferimos manter tudo em casa: nada de repassar a sua marca pra quem não conhece o projeto. Ainda não usamos fotos por aqui, o time aparece pelo que entrega.</p>
+          </div>
+          <p class="block-label" style="margin-top:0">Fundadores</p>
+          <div class="founders">
+            <article class="person">
+              <div class="person-top"><span class="avatar" aria-hidden="true">N</span><h3>Nathan Rebechi</h3></div>
+              <dl class="props">
+                <div class="prop"><dt>Cargo</dt><dd class="tags"><span class="tag t-red">CEO</span><span class="tag t-sand">Gerente de projetos</span><span class="tag t-wine">Videomaker</span></dd></div>
+                <div class="prop"><dt>Idade</dt><dd>26 anos</dd></div>
+              </dl>
+              <p>Nathan tem 26 anos e reúne o olhar de quem cria com a visão de quem conduz projetos. Videomaker, fotógrafo e CEO da LAX, conecta a produção audiovisual aos objetivos de cada negócio.</p>
+              <p>Sua atuação combina criatividade, planejamento e acompanhamento das entregas, transformando ideias em conteúdos que expressam a identidade das marcas e aproximam empresas de seus públicos.</p>
+            </article>
+            <article class="person">
+              <div class="person-top"><span class="avatar" aria-hidden="true">M</span><h3>Matheus Lacerda</h3></div>
+              <dl class="props">
+                <div class="prop"><dt>Cargo</dt><dd class="tags"><span class="tag t-red">CMO</span><span class="tag t-sand">Marketing</span><span class="tag t-wine">Designer</span><span class="tag">Fotógrafo e videomaker</span></dd></div>
+                <div class="prop"><dt>Idade</dt><dd>26 anos</dd></div>
+                <div class="prop"><dt>Formação</dt><dd>Marketing e Administração, nos Estados Unidos</dd></div>
+              </dl>
+              <p>Matheus tem 26 anos e é formado em Marketing e Administração nos Estados Unidos. Sua formação se soma à atuação como designer, fotógrafo e videomaker, conectando visão de negócio e criação.</p>
+              <p>Na LAX, reúne essas competências pra desenvolver uma comunicação visual alinhada à identidade e aos objetivos de cada marca, da concepção das ideias à produção de imagens, vídeos e peças gráficas.</p>
+            </article>
+          </div>
+
+          <p class="block-label">Como organizamos o time</p>
+          <div class="roles">
+            <div class="role-list" role="tablist" aria-label="Frentes do time" id="roleList">
+              <button type="button" role="tab" aria-selected="true" data-letter="E" data-title="Estratégia" data-text="Define prioridades, metas e o caminho entre onde a marca está e onde ela quer chegar.">Estratégia</button>
+              <button type="button" role="tab" aria-selected="false" data-letter="C" data-title="Criação" data-text="Dá corpo às ideias: direção de arte, design e produção de conteúdo.">Criação</button>
+              <button type="button" role="tab" aria-selected="false" data-letter="S" data-title="Social Media" data-text="Cuida do dia a dia das redes, do calendário à conversa com a comunidade.">Social Media</button>
+              <button type="button" role="tab" aria-selected="false" data-letter="P" data-title="Performance &amp; Mídia" data-text="Toca tráfego pago, métricas e otimização contínua de investimento.">Performance &amp; Mídia</button>
+              <button type="button" role="tab" aria-selected="false" data-letter="A" data-title="Atendimento" data-text="Traduz a estratégia pro cliente e o cliente pra estratégia.">Atendimento</button>
+            </div>
+            <div class="role-panel" role="tabpanel" id="rolePanel"><span class="big" id="roleBig" aria-hidden="true">E</span><h3 id="roleTitle">Estratégia</h3><p id="roleText">Define prioridades, metas e o caminho entre onde a marca está e onde ela quer chegar.</p></div>
+          </div>
+        </section>
+
+        <section class="sec" id="contato" data-sec data-title="Contato">
+          <div class="sec-head">
+            <p class="eyebrow"><svg class="i"><use href="#i-mail"/></svg>Contato</p>
+            <h2>Vamos conversar?<a class="anchor" href="#contato" aria-label="Link para esta seção"><svg class="i"><use href="#i-hash"/></svg></a></h2>
+            <p class="lead">Conta um pouco sobre o momento da sua marca e o que você precisa. A gente responde em breve.</p>
+          </div>
+          <div class="contact">
+            <div class="card raised" id="formCard">
+              <form class="form" name="contato" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="contactForm" novalidate>
+                <input type="hidden" name="form-name" value="contato" />
+                <p class="hp-field"><label>Não preencha este campo: <input name="bot-field" tabindex="-1" autocomplete="off" /></label></p>
+                <div class="full">
+                  <h3>O que você precisa?</h3>
+                  <div class="chips" role="group" aria-label="Serviços de interesse" id="chips">
+                    <label class="chip"><input type="checkbox" name="servico" value="Performance"><span>Performance</span></label>
+                    <label class="chip"><input type="checkbox" name="servico" value="Branding"><span>Branding</span></label>
+                    <label class="chip"><input type="checkbox" name="servico" value="Social Media"><span>Social Media</span></label>
+                    <label class="chip"><input type="checkbox" name="servico" value="Conteúdo"><span>Conteúdo</span></label>
+                    <label class="chip"><input type="checkbox" name="servico" value="Tráfego Pago"><span>Tráfego Pago</span></label>
+                  </div>
+                </div>
+                <div class="field" id="f-name"><input type="text" id="name" name="name" placeholder=" " autocomplete="name" required /><label for="name">Nome</label><span class="msg">Informe seu nome.</span></div>
+                <div class="field" id="f-email"><input type="email" id="email" name="email" placeholder=" " autocomplete="email" required /><label for="email">E-mail</label><span class="msg">Informe um e-mail válido, como voce@empresa.com.</span></div>
+                <div class="field full"><input type="text" id="company" name="company" placeholder=" " autocomplete="organization" /><label for="company">Empresa</label></div>
+                <div class="field full" id="f-message"><textarea id="message" name="message" placeholder=" " rows="4" required></textarea><label for="message">Mensagem</label><span class="msg">Conte um pouco sobre o projeto.</span></div>
+                <div class="full form-foot"><small>Ao enviar, você concorda em ser contatado pela LAX.</small><button type="submit" class="btn">Enviar mensagem <svg class="i"><use href="#i-arrow"/></svg></button></div>
+              </form>
+              <div class="done" role="status">
+                <svg viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="25"/><path d="M17 29l8 8 15-17"/></svg>
+                <h3>Mensagem enviada!</h3>
+                <p>A gente responde em breve.</p>
+                <button type="button" class="btn sm ghost" id="again">Enviar outra</button>
+              </div>
+              <div class="fail" role="alert">
+                <h3>Não conseguimos enviar por aqui</h3>
+                <p>Sua mensagem não saiu do navegador. Mande pelo WhatsApp ou copie o e-mail, e a gente responde do mesmo jeito.</p>
+                <div class="fail-actions">
+                  <a class="btn sm" id="failWa" href="https://wa.me/5551991990892" target="_blank" rel="noopener">Enviar pelo WhatsApp <svg class="i"><use href="#i-arrow"/></svg></a>
+                  <button type="button" class="copy" data-copy="laxassessoria@outlook.com" data-what="E-mail"><svg class="i"><use href="#i-copy"/></svg>Copiar e-mail</button>
+                  <button type="button" class="btn sm ghost" id="retry">Voltar ao formulário</button>
+                </div>
+              </div>
+            </div>
+            <div class="chan">
+              <div class="card">
+                <div class="crow"><div><small>E-mail</small><a class="val" href="mailto:laxassessoria@outlook.com">laxassessoria@outlook.com</a></div><button type="button" class="copy" data-copy="laxassessoria@outlook.com" data-what="E-mail"><svg class="i"><use href="#i-copy"/></svg>Copiar</button></div>
+                <div class="crow"><div><small>WhatsApp</small><span>(51) 99199-0892</span></div><a class="go" href="https://wa.me/5551991990892" target="_blank" rel="noopener"><svg class="i"><use href="#i-wa"/></svg>Chamar</a></div>
+              </div>
+              <div class="card">
+                <div class="crow"><div><small>Instagram</small><a class="val" href="https://www.instagram.com/laxassessoria/" target="_blank" rel="noopener">@laxassessoria</a></div><a class="go" href="https://www.instagram.com/laxassessoria/" target="_blank" rel="noopener"><svg class="i"><use href="#i-ig"/></svg>Abrir</a></div>
+                <div class="crow"><div><small>LinkedIn</small><a class="val" href="https://linkedin.com/company/laxa" target="_blank" rel="noopener">linkedin.com/company/laxa</a></div><a class="go" href="https://linkedin.com/company/laxa" target="_blank" rel="noopener"><svg class="i"><use href="#i-in"/></svg>Abrir</a></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="foot">
+      <div class="page">
+        <div class="foot-top">
+          <div>
+            <img class="logo-l" src="assets/img/logo/lax-dark.png" alt="LAX" width="52" height="26" />
+            <img class="logo-d" src="assets/img/logo/lax-color.png" alt="LAX" width="52" height="26" />
+            <p>Assessoria de marketing completa: performance, branding, social media, conteúdo e tráfego pago em um só lugar.</p>
+          </div>
+          <div><h4>Navegação</h4><nav aria-label="Rodapé"><a href="#inicio">Início</a><a href="#quem-somos">Quem somos</a><a href="#servicos">O que fazemos</a><a href="#cases">Cases</a><a href="#time">Time</a><a href="#contato">Contato</a></nav></div>
+          <div><h4>Redes</h4><nav><a href="https://www.instagram.com/laxassessoria/" target="_blank" rel="noopener">Instagram</a><a href="https://linkedin.com/company/laxa" target="_blank" rel="noopener">LinkedIn</a><a href="https://wa.me/5551991990892" target="_blank" rel="noopener">WhatsApp</a></nav></div>
+          <div><h4>Contato</h4><nav><a href="mailto:laxassessoria@outlook.com">laxassessoria@outlook.com</a></nav></div>
+        </div>
+        <div class="foot-bot"><span>&copy; <span id="year">2026</span> LAX Assessoria de Marketing.</span><span>Produzido por <a href="https://www.instagram.com/laxassessoria/" target="_blank" rel="noopener">LAX</a>.</span></div>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="peek" id="peek" role="dialog" aria-modal="true" aria-labelledby="peekTitle" aria-hidden="true">
+  <div class="peek-bar"><span>Formato</span><button class="icon-btn" type="button" id="peekClose" aria-label="Fechar"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="peek-body">
+    <img id="peekImg" src="" alt="" />
+    <h3 id="peekTitle"></h3>
+    <p id="peekText"></p>
+    <dl class="props" style="margin-top:0"><div class="prop"><dt>Área</dt><dd id="peekArea" class="tags"></dd></div></dl>
+    <button class="btn" type="button" id="peekCta">Quero esse formato <svg class="i"><use href="#i-arrow"/></svg></button>
+  </div>
+</aside>
+<div class="pal" id="pal" role="dialog" aria-modal="true" aria-label="Buscar no site" aria-hidden="true">
+  <div class="pal-in"><svg class="i"><use href="#i-search"/></svg><input id="palInput" type="text" placeholder="Buscar seção, serviço, formato ou ação" autocomplete="off" role="combobox" aria-expanded="true" aria-controls="palList" /><kbd>Esc</kbd></div>
+  <div class="pal-list" id="palList" role="listbox"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  "use strict";
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  var root = document.documentElement;
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+  var fold = function (s) { return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase(); };
+  var WA = "https://wa.me/5551991990892";
+  var EMAIL = "laxassessoria@outlook.com";
+
+  /* ---------- toast + copy ---------- */
+  var toastEl = $("#toast"), toastT;
+  function toast(msg) {
+    toastEl.textContent = msg; toastEl.classList.add("on");
+    clearTimeout(toastT); toastT = setTimeout(function () { toastEl.classList.remove("on"); }, 2200);
+  }
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea"); ta.value = text; ta.setAttribute("readonly", "");
+    ta.style.cssText = "position:fixed;left:-9999px;top:0"; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand("copy"); } catch (e) {}
+    document.body.removeChild(ta); return ok;
+  }
+  function copyText(text, what, btn) {
+    var done = function (ok) {
+      if (ok) {
+        toast((what || "Texto") + " copiado");
+        if (btn) { btn.classList.add("ok"); setTimeout(function () { btn.classList.remove("ok"); }, 1400); }
+      } else { toast("Não deu pra copiar. Selecione o texto e copie manualmente."); }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(fallbackCopy(text)); });
+    } else { done(fallbackCopy(text)); }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-copy]");
+    if (b) copyText(b.getAttribute("data-copy"), b.getAttribute("data-what"), b);
+  });
+
+  /* ---------- theme ---------- */
+  var saved = store.get("lax-theme");
+  if (saved === "light" || saved === "dark") root.setAttribute("data-theme", saved);
+  function isDark() {
+    var t = root.getAttribute("data-theme");
+    return t ? t === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
+  }
+  function syncTheme() { $("#themeLabel").textContent = isDark() ? "Tema claro" : "Tema escuro"; }
+  function toggleTheme() {
+    var next = isDark() ? "light" : "dark";
+    root.setAttribute("data-theme", next); store.set("lax-theme", next); syncTheme();
+  }
+  $("#themeBtn").addEventListener("click", toggleTheme);
+  $("#themeBtnTop").addEventListener("click", toggleTheme);
+  syncTheme();
+  $("#year").textContent = new Date().getFullYear();
+
+  /* ---------- sidebar ---------- */
+  var body = document.body;
+  var mobile = window.matchMedia("(max-width: 900px)");
+  if (store.get("lax-side") === "off" && !mobile.matches) body.classList.add("side-off");
+  function toggleSide() {
+    if (mobile.matches) { body.classList.toggle("side-open"); return; }
+    body.classList.toggle("side-off"); store.set("lax-side", body.classList.contains("side-off") ? "off" : "on");
+  }
+  $("#sideToggle").addEventListener("click", toggleSide);
+  $("#sideCollapse").addEventListener("click", toggleSide);
+  $("#sideScrim").addEventListener("click", function () { body.classList.remove("side-open"); });
+  $$(".tree a, .tree-sub button").forEach(function (a) { a.addEventListener("click", function () { body.classList.remove("side-open"); }); });
+  var caret = $("#svcCaret"), sub = $("#svcSub");
+  function setSub(open) { sub.classList.toggle("open", open); caret.setAttribute("aria-expanded", open ? "true" : "false"); }
+  caret.addEventListener("click", function () { setSub(!sub.classList.contains("open")); });
+
+  /* ---------- scroll spy, progress, breadcrumb ---------- */
+  var secs = $$("[data-sec]"), crumb = $("#crumb"), top = $("#top"), prog = $("#progress");
+  function setActive(id) {
+    var s = document.getElementById(id); if (!s) return;
+    crumb.textContent = s.getAttribute("data-title");
+    $$("[data-nav]").forEach(function (a) { a.setAttribute("aria-current", a.getAttribute("data-nav") === id ? "true" : "false"); });
+    if (id === "servicos") setSub(true);
+  }
+  if ("IntersectionObserver" in window) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) setActive(en.target.id); });
+    }, { rootMargin: "-30% 0px -60% 0px" });
+    secs.forEach(function (s) { spy.observe(s); });
+  }
+  setActive("inicio");
+  function onScroll() {
+    var h = document.documentElement.scrollHeight - window.innerHeight;
+    prog.style.transform = "scaleX(" + (h > 0 ? Math.min(1, window.scrollY / h) : 0) + ")";
+    top.classList.toggle("scrolled", window.scrollY > 240);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true }); onScroll();
+  function go(id) {
+    var el = document.getElementById(id); if (!el) return;
+    el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  /* ---------- cover spotlight (follows pointer, drifts when idle) ---------- */
+  (function () {
+    var cover = $("#cover"), layer = $(".cover-color", cover), grid = $(".cover-wash .cover-grid", cover);
+    var clone = grid.cloneNode(true);
+    $$("img", clone).forEach(function (im) { im.setAttribute("alt", ""); im.setAttribute("aria-hidden", "true"); im.removeAttribute("loading"); });
+    layer.appendChild(clone);
+    var x = .7, y = .6, tx = .7, ty = .6, r = 0, last = 0, visible = true, raf = 0;
+    function radius() { return 130 + cover.clientWidth * .09; }
+    function paint() {
+      layer.style.setProperty("--mx", (x * 100).toFixed(1) + "%");
+      layer.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+      layer.style.setProperty("--r", r.toFixed(0) + "px");
+    }
+    function frame(t) {
+      raf = 0;
+      if (!reduce && t - last > 2200) { tx = .5 + .36 * Math.sin(t / 3400); ty = .5 + .26 * Math.cos(t / 2500); }
+      x += (tx - x) * .08; y += (ty - y) * .08; r += (radius() - r) * .06;
+      paint();
+      if (visible && !reduce) raf = requestAnimationFrame(frame);
+    }
+    cover.addEventListener("pointermove", function (e) {
+      var b = cover.getBoundingClientRect();
+      tx = (e.clientX - b.left) / b.width; ty = (e.clientY - b.top) / b.height; last = performance.now();
+      if (reduce && !raf) raf = requestAnimationFrame(frame);
+    });
+    cover.addEventListener("pointerleave", function () { last = performance.now(); });
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (en) {
+        visible = en[0].isIntersecting;
+        if (visible && !raf) raf = requestAnimationFrame(frame);
+      }).observe(cover);
+    }
+    r = radius(); paint();
+    if (!reduce) raf = requestAnimationFrame(frame);
+  })();
+
+  /* ---------- counters ---------- */
+  (function () {
+    var els = $$("[data-count]");
+    if (reduce || !("IntersectionObserver" in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (!en.isIntersecting) return; io.unobserve(en.target);
+        var el = en.target, to = +el.getAttribute("data-count"), t0 = performance.now();
+        (function tick(t) {
+          var p = Math.min(1, (t - t0) / 1100), e = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(to * e); if (p < 1) requestAnimationFrame(tick);
+        })(t0);
+      });
+    }, { threshold: .6 });
+    els.forEach(function (el) { io.observe(el); });
+  })();
+
+  /* ---------- toggles (about) ---------- */
+  $$(".tgl > button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var open = b.getAttribute("aria-expanded") !== "true";
+      b.setAttribute("aria-expanded", open ? "true" : "false");
+      b.nextElementSibling.classList.toggle("open", open);
+    });
+  });
+
+  /* ---------- service panels ---------- */
+  var panels = $$(".panel"), svcTree = $$(".tree-sub button"), tags = $$(".props [data-svc]");
+  function openPanel(i) {
+    panels.forEach(function (p, j) {
+      var on = i === j; p.classList.toggle("on", on);
+      $(".panel-tg", p).setAttribute("aria-expanded", on ? "true" : "false");
+    });
+    svcTree.forEach(function (b, j) { b.classList.toggle("on", i === j); });
+  }
+  panels.forEach(function (p, i) {
+    var tg = $(".panel-tg", p), t;
+    tg.addEventListener("click", function () { openPanel(i); });
+    if (fine) {
+      p.addEventListener("pointerenter", function () { if (mobile.matches || window.innerWidth <= 820) return; clearTimeout(t); t = setTimeout(function () { openPanel(i); }, 110); });
+      p.addEventListener("pointerleave", function () { clearTimeout(t); });
+    }
+    tg.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
+      if (!d) return; e.preventDefault();
+      var n = (i + d + panels.length) % panels.length; openPanel(n); $(".panel-tg", panels[n]).focus();
+    });
+  });
+  function showService(i) { openPanel(i); go("servicos"); }
+  svcTree.forEach(function (b) { b.addEventListener("click", function () { showService(+b.getAttribute("data-svc")); }); });
+  tags.forEach(function (b) { b.addEventListener("click", function () { showService(+b.getAttribute("data-svc")); }); });
+  openPanel(0);
+
+  /* ---------- method board ---------- */
+  (function () {
+    var cols = $$("#board .col"), names = ["Diagnóstico", "Estratégia", "Execução", "Otimização"];
+    var status = $("#boardStatus"), cycle = 1, cur = 0, interacted = false, timer = 0;
+    var card = document.createElement("div"); card.className = "pcard";
+    function fill() {
+      card.innerHTML = '<h4><svg class="i"><use href="#i-layers"/></svg>Projeto de exemplo</h4>' +
+        '<dl><dt>Etapa</dt><dd><span class="tag t-red">' + names[cur] + '</span></dd><dt>Rodada</dt><dd>' + cycle + '</dd></dl>';
+    }
+    function move(to, animate) {
+      var slot = $(".slot", cols[to]), first = card.getBoundingClientRect(), had = !!card.parentNode;
+      if (to === 0 && cur === 3) cycle++;
+      cur = to; fill(); slot.appendChild(card);
+      cols.forEach(function (c, i) { c.classList.toggle("on", i === to); });
+      status.textContent = to === 0 && cycle > 1
+        ? "Voltamos pro diagnóstico. Rodada " + cycle + "."
+        : "Projeto de exemplo na etapa " + names[to] + ".";
+      if (animate && had && !reduce && card.animate) {
+        var last = card.getBoundingClientRect();
+        card.animate([{ transform: "translate(" + (first.left - last.left) + "px," + (first.top - last.top) + "px)" }, { transform: "none" }], { duration: 520, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
+    }
+    function next(user) { if (user) stop(); move((cur + 1) % 4, true); }
+    function stop() { interacted = true; clearInterval(timer); }
+    cols.forEach(function (c, i) {
+      c.addEventListener("click", function () { stop(); move(i, true); });
+      c.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); stop(); move(i, true); } });
+    });
+    $("#boardNext").addEventListener("click", function () { next(true); });
+    move(0, false);
+    if (!reduce && "IntersectionObserver" in window) {
+      new IntersectionObserver(function (en) {
+        clearInterval(timer);
+        if (en[0].isIntersecting && !interacted) timer = setInterval(function () { next(false); }, 3600);
+      }, { threshold: .5 }).observe($("#board"));
+    }
+  })();
+
+  /* ---------- formats database ---------- */
+  var cards = $$("#gallery .gcard"), items = cards.map(function (c) {
+    return {
+      key: c.getAttribute("data-key"), area: c.getAttribute("data-area"), el: c,
+      title: $("h4", c).textContent, text: $("p", c).textContent,
+      img: $("img", c).getAttribute("src"), alt: $("img", c).getAttribute("alt"), tagClass: $(".tag", c).className
+    };
+  });
+  var areas = ["Todos"]; items.forEach(function (it) { if (areas.indexOf(it.area) < 0) areas.push(it.area); });
+  var area = "Todos", q = "", view = "gallery";
+  var filtersEl = $("#filters"), dbody = $("#dbody");
+  areas.forEach(function (a) {
+    var b = document.createElement("button"); b.type = "button"; b.className = "fchip"; b.setAttribute("data-a", a);
+    var n = a === "Todos" ? items.length : items.filter(function (i) { return i.area === a; }).length;
+    b.innerHTML = a + "<small>" + n + "</small>"; b.setAttribute("aria-pressed", a === "Todos" ? "true" : "false");
+    b.addEventListener("click", function () { area = a; apply(); }); filtersEl.appendChild(b);
+  });
+  items.forEach(function (it) {
+    var tr = document.createElement("tr"); tr.className = "row"; tr.tabIndex = 0;
+    tr.innerHTML = '<td><img class="mini" src="' + it.img + '" alt="" loading="lazy"></td><td class="nm"></td><td class="ds"></td><td><span class="' + it.tagClass + '"></span></td>';
+    $(".nm", tr).textContent = it.title; $(".ds", tr).textContent = it.text; $(".tag", tr).textContent = it.area;
+    tr.addEventListener("click", function () { openPeek(it.key, tr); });
+    tr.addEventListener("keydown", function (e) { if (e.key === "Enter") openPeek(it.key, tr); });
+    dbody.appendChild(tr); it.row = tr;
+  });
+  function apply() {
+    var shown = 0;
+    items.forEach(function (it) {
+      var ok = (area === "Todos" || it.area === area) && (!q || fold(it.title + " " + it.text + " " + it.area).indexOf(q) >= 0);
+      it.el.hidden = !ok; it.row.hidden = !ok; if (ok) shown++;
+    });
+    $$(".fchip").forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-a") === area ? "true" : "false"); });
+    $("#gallery").hidden = view !== "gallery" || !shown; $("#dtable").hidden = view !== "table" || !shown; $("#dbEmpty").hidden = !!shown;
+  }
+  $("#fsearch").addEventListener("input", function (e) { q = fold(e.target.value.trim()); apply(); });
+  $$(".view").forEach(function (b) {
+    b.addEventListener("click", function () {
+      view = b.getAttribute("data-view");
+      $$(".view").forEach(function (x) { x.setAttribute("aria-selected", x === b ? "true" : "false"); }); apply();
+    });
+  });
+  cards.forEach(function (c, i) { c.addEventListener("click", function () { openPeek(items[i].key, c); }); });
+
+  /* peek panel */
+  var peek = $("#peek"), scrim = $("#scrim"), peekFrom = null;
+  function openPeek(key, from) {
+    var it = items.filter(function (i) { return i.key === key; })[0]; if (!it) return;
+    peekFrom = from || null;
+    $("#peekImg").src = it.img; $("#peekImg").alt = it.alt; $("#peekTitle").textContent = it.title; $("#peekText").textContent = it.text;
+    $("#peekArea").innerHTML = '<span class="' + it.tagClass + '"></span>'; $("#peekArea .tag").textContent = it.area;
+    $("#peekCta").onclick = function () {
+      closeOverlays(); setChip(it.area, true); fillMessage("Oi, LAX! Quero conversar sobre o formato " + it.title + ".");
+      go("contato");
+    };
+    peek.classList.add("on"); scrim.classList.add("on"); peek.setAttribute("aria-hidden", "false");
+    setTimeout(function () { $("#peekClose").focus(); }, 60);
+  }
+  function closePeek() {
+    if (!peek.classList.contains("on")) return;
+    peek.classList.remove("on"); peek.setAttribute("aria-hidden", "true");
+    if (!pal.classList.contains("on")) scrim.classList.remove("on");
+    if (peekFrom) { try { peekFrom.focus(); } catch (e) {} }
+  }
+  $("#peekClose").addEventListener("click", closePeek);
+
+  /* ---------- sectors ---------- */
+  (function () {
+    var btns = $$("#sectors .tag"), note = $("#sectorNote");
+    function sync() {
+      var sel = btns.filter(function (b) { return b.getAttribute("aria-pressed") === "true"; }).map(function (b) { return b.textContent; });
+      note.innerHTML = "";
+      if (!sel.length) { note.textContent = "Escolha um ou mais setores pra falar com a gente sobre eles."; return; }
+      var span = document.createElement("span"); span.textContent = sel.join(", ") + (sel.length > 1 ? " selecionados." : " selecionado.");
+      var go1 = document.createElement("button"); go1.type = "button"; go1.className = "btn sm"; go1.innerHTML = 'Falar sobre ' + (sel.length > 1 ? "esses setores" : "esse setor") + ' <svg class="i"><use href="#i-arrow"/></svg>';
+      go1.addEventListener("click", function () { fillMessage("Oi, LAX! Minha marca atua em: " + sel.join(", ") + "."); go("contato"); });
+      note.appendChild(span); note.appendChild(go1);
+    }
+    btns.forEach(function (b) { b.addEventListener("click", function () { b.setAttribute("aria-pressed", b.getAttribute("aria-pressed") === "true" ? "false" : "true"); sync(); }); });
+    sync();
+  })();
+
+  /* ---------- team roles ---------- */
+  (function () {
+    var tabs = $$("#roleList button"), big = $("#roleBig"), title = $("#roleTitle"), text = $("#roleText");
+    tabs.forEach(function (t, i) {
+      function pick() {
+        tabs.forEach(function (x) { x.setAttribute("aria-selected", x === t ? "true" : "false"); x.tabIndex = x === t ? 0 : -1; });
+        big.textContent = t.getAttribute("data-letter"); title.innerHTML = t.getAttribute("data-title"); text.textContent = t.getAttribute("data-text");
+        if (!reduce && big.animate) big.animate([{ transform: "translateY(18px)", opacity: 0 }, { transform: "none", opacity: 1 }], { duration: 420, easing: "cubic-bezier(.16,1,.3,1)" });
+      }
+      t.addEventListener("click", pick); t.addEventListener("pointerenter", function () { if (fine) pick(); });
+      t.addEventListener("keydown", function (e) {
+        var d = e.key === "ArrowDown" || e.key === "ArrowRight" ? 1 : e.key === "ArrowUp" || e.key === "ArrowLeft" ? -1 : 0;
+        if (!d) return; e.preventDefault(); var n = tabs[(i + d + tabs.length) % tabs.length]; n.focus(); n.click();
+      });
+      t.tabIndex = i === 0 ? 0 : -1;
+    });
+  })();
+
+  /* ---------- contact form ---------- */
+  var form = $("#contactForm"), formCard = $("#formCard");
+  function setChip(value, on) {
+    $$("#chips input").forEach(function (i) { if (i.value === value) i.checked = on; });
+  }
+  function fillMessage(text) {
+    var m = $("#message"); m.value = m.value && m.value.indexOf(text) < 0 ? m.value + "\n" + text : text;
+    m.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  $$("[data-pick]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      setChip(b.getAttribute("data-pick"), true); go("contato");
+      toast(b.getAttribute("data-pick") + " marcado no formulário");
+    });
+  });
+  function invalid(id, bad) { $("#" + id).classList.toggle("err", bad); return bad; }
+  function waLink() {
+    var d = new FormData(form), svc = d.getAll("servico").join(", ");
+    var text = "Oi, LAX! Sou " + (d.get("name") || "") + (d.get("company") ? " (" + d.get("company") + ")" : "") + ".\n" +
+      (svc ? "Interesse: " + svc + "\n" : "") + (d.get("message") || "");
+    return WA + "?text=" + encodeURIComponent(text.trim());
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = $("#name").value.trim(), email = $("#email").value.trim(), msg = $("#message").value.trim();
+    var bad = [invalid("f-name", !name), invalid("f-email", !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)), invalid("f-message", !msg)];
+    if (bad.indexOf(true) >= 0) { var first = $$(".field.err input, .field.err textarea", form)[0]; if (first) first.focus(); return; }
+    var data = new FormData(form), params = new URLSearchParams();
+    data.forEach(function (v, k) { params.append(k, v); });
+    var btn = $("button[type=submit]", form); btn.disabled = true;
+    fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: params.toString() })
+      .then(function (res) {
+        if (!res.ok) throw new Error("status " + res.status);
+        form.reset(); formCard.classList.add("sent");
+      })
+      .catch(function () { $("#failWa").href = waLink(); formCard.classList.add("failed"); })
+      .then(function () { btn.disabled = false; });
+  });
+  $$(".field input, .field textarea", form).forEach(function (i) { i.addEventListener("input", function () { var f = i.closest(".field"); if (f) f.classList.remove("err"); }); });
+  $("#again").addEventListener("click", function () { formCard.classList.remove("sent"); $("#name").focus(); });
+  $("#retry").addEventListener("click", function () { formCard.classList.remove("failed"); });
+
+  /* ---------- command palette ---------- */
+  var pal = $("#pal"), palInput = $("#palInput"), palList = $("#palList"), palSel = 0, palRows = [], palFrom = null;
+  var commands = [];
+  secs.forEach(function (s) { commands.push({ g: "Páginas", t: s.getAttribute("data-title"), run: function () { go(s.id); } }); });
+  panels.forEach(function (p, i) { commands.push({ g: "Serviços", t: p.getAttribute("data-name"), run: function () { showService(i); } }); });
+  items.forEach(function (it) { commands.push({ g: "Formatos", t: it.title, s: it.area, run: function () { go("cases"); setTimeout(function () { openPeek(it.key); }, reduce ? 0 : 450); } }); });
+  commands.push(
+    { g: "Ações", t: "Alternar tema claro e escuro", run: toggleTheme },
+    { g: "Ações", t: "Copiar e-mail da LAX", s: EMAIL, run: function () { copyText(EMAIL, "E-mail"); } },
+    { g: "Ações", t: "Chamar no WhatsApp", run: function () { window.open(WA, "_blank", "noopener"); } },
+    { g: "Ações", t: "Enviar mensagem", run: function () { go("contato"); setTimeout(function () { $("#name").focus({ preventScroll: true }); }, 500); } }
+  );
+  function renderPal() {
+    var term = fold(palInput.value.trim());
+    palRows = commands.filter(function (c) { return !term || fold(c.t + " " + c.g + " " + (c.s || "")).indexOf(term) >= 0; });
+    palSel = 0; palList.innerHTML = "";
+    if (!palRows.length) { palList.innerHTML = '<p class="pal-empty">Nada encontrado. Tente "serviços", "vídeo" ou "contato".</p>'; return; }
+    var g = "";
+    palRows.forEach(function (c, i) {
+      if (c.g !== g) { g = c.g; var h = document.createElement("div"); h.className = "pal-g"; h.textContent = g; palList.appendChild(h); }
+      var b = document.createElement("button"); b.type = "button"; b.className = "pal-item"; b.id = "pal-" + i; b.setAttribute("role", "option"); b.setAttribute("aria-selected", i === 0 ? "true" : "false");
+      b.innerHTML = '<span></span><small></small>'; $("span", b).textContent = c.t; $("small", b).textContent = c.s || "";
+      b.addEventListener("click", function () { runPal(i); }); b.addEventListener("pointermove", function () { selPal(i, false); });
+      palList.appendChild(b);
+    });
+    palInput.setAttribute("aria-activedescendant", "pal-0");
+  }
+  function selPal(i, scroll) {
+    palSel = i; $$(".pal-item", palList).forEach(function (b, j) { b.setAttribute("aria-selected", j === i ? "true" : "false"); });
+    palInput.setAttribute("aria-activedescendant", "pal-" + i);
+    if (scroll) { var el = $("#pal-" + i); if (el) el.scrollIntoView({ block: "nearest" }); }
+  }
+  function runPal(i) { var c = palRows[i]; if (!c) return; closePal(); c.run(); }
+  function openPal() {
+    palFrom = document.activeElement; closePeek(); body.classList.remove("side-open");
+    pal.classList.add("on"); scrim.classList.add("on"); pal.setAttribute("aria-hidden", "false");
+    palInput.value = ""; renderPal(); setTimeout(function () { palInput.focus(); }, 30);
+  }
+  function closePal() {
+    if (!pal.classList.contains("on")) return;
+    pal.classList.remove("on"); pal.setAttribute("aria-hidden", "true"); scrim.classList.remove("on");
+    if (palFrom && palFrom.focus) { try { palFrom.focus(); } catch (e) {} }
+  }
+  function closeOverlays() { closePal(); closePeek(); scrim.classList.remove("on"); }
+  $$("[data-open-palette]").forEach(function (b) { b.addEventListener("click", openPal); });
+  palInput.addEventListener("input", renderPal);
+  palInput.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowDown") { e.preventDefault(); if (palRows.length) selPal((palSel + 1) % palRows.length, true); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); if (palRows.length) selPal((palSel - 1 + palRows.length) % palRows.length, true); }
+    else if (e.key === "Enter") { e.preventDefault(); runPal(palSel); }
+  });
+  scrim.addEventListener("click", closeOverlays);
+  document.addEventListener("keydown", function (e) {
+    var typing = /^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || "")) || e.target.isContentEditable;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); pal.classList.contains("on") ? closePal() : openPal(); }
+    else if (e.key === "/" && !typing && !pal.classList.contains("on")) { e.preventDefault(); openPal(); }
+    else if (e.key === "Escape") { closePal(); closePeek(); body.classList.remove("side-open"); }
+  });
+  var isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  if (isMac) { var k = $(".side-search kbd"); if (k) k.textContent = "⌘ K"; }
+})();
+</script>
+</body>
+</html>
