@@ -327,12 +327,12 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
 
 /* footer */
 .foot { position: relative; border-top: 1px solid var(--hair); padding-block: 52px 28px; background: var(--bg); color: var(--ink); }
-.foot-top { display: grid; grid-template-columns: minmax(0, 2fr) repeat(3, minmax(0, 1fr)); gap: 28px; }
+.foot-top { display: grid; grid-template-columns: minmax(0, 1.6fr) auto auto auto; justify-content: space-between; gap: 28px clamp(32px, 5vw, 72px); }
 .foot img { height: 26px; width: auto; }
 .foot p { color: var(--muted); max-width: 34ch; margin-top: 14px; font-size: 14.5px; }
 .foot h4 { font: 500 11.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
 .foot nav { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; align-items: flex-start; }
-.foot nav a { text-decoration: none; overflow-wrap: anywhere; } .foot nav a:hover { color: var(--accent-text); }
+.foot nav a { text-decoration: none; white-space: nowrap; } .foot nav a:hover { color: var(--accent-text); }
 .foot-bot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; margin-top: 36px; padding-top: 20px; border-top: 1px solid var(--hair); font-size: 13px; color: var(--muted); }
 .toast { position: fixed; z-index: 90; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); background: #F5F3F1; color: #1B1516; padding: 10px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity 200ms, transform 300ms var(--ease-out); }
 .toast.on { opacity: 1; transform: translate(-50%, 0); }
