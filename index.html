@@ -238,10 +238,22 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
 .board-bar p { color: var(--muted); font-size: 14.5px; flex: 1 1 240px; }
 
 /* cases + formats */
-.empties { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-.empty { display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 22px; min-height: 120px; padding: 16px; border: 1.5px dashed var(--hair-2); border-radius: 8px; color: var(--muted); }
-.empty p { font-weight: 600; color: var(--ink-2); }
-.empty .tag { font-size: 12.5px; padding: 1px 10px; }
+.ctabs { display: flex; gap: 6px; margin-bottom: clamp(24px, 4vw, 40px); border-bottom: 1px solid var(--hair-2); overflow-x: auto; }
+.ctab { position: relative; flex: none; padding: 12px 20px; border: 0; background: none; font-weight: 700; font-stretch: 104%; font-size: 1rem; color: var(--muted); transition: color 160ms; }
+.ctab:hover { color: var(--ink); }
+.ctab[aria-selected="true"] { color: var(--ink); }
+.ctab::after { content: ""; position: absolute; left: 14px; right: 14px; bottom: -1px; height: 3px; background: var(--red); transform: var(--slant) scaleX(0); transform-origin: left; transition: transform 280ms var(--ease-out); }
+.ctab[aria-selected="true"]::after { transform: var(--slant) scaleX(1); }
+.cpanel { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(28px, 6vw, 80px); align-items: center; }
+.cmedia { position: relative; margin: 0; border-radius: 12px; overflow: hidden; background: var(--panel-a); box-shadow: var(--shadow); height: min(600px, 74vh); }
+.cmedia.r45 { aspect-ratio: 4 / 5; }
+.cmedia.r916 { aspect-ratio: 9 / 16; }
+.cmedia img, .cmedia video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.cinfo { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; max-width: 44ch; }
+.cinfo .mono { font: 500 12px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--accent-text); }
+.cinfo h3 { font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1.06; }
+.cinfo p:not(.mono) { color: var(--ink-2); text-wrap: pretty; }
+.cinfo .btn { margin-top: 6px; }
 .flist { border-top: 1px solid var(--hair-2); }
 .frow { border-bottom: 1px solid var(--hair-2); }
 .frow > button { width: 100%; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr) 24px; gap: 24px; align-items: center; padding: 20px 4px; border: 0; background: none; text-align: left; transition: padding 300ms var(--ease-out), color 200ms; }
@@ -358,12 +370,20 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
   .panel-body { width: 100%; }
   .hero-arrow { opacity: .2; }
 }
+@media (max-width: 760px) {
+  .cpanel { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .cmedia { height: auto; width: min(100%, 440px); }
+  .cmedia.r916 { width: min(72%, 300px); }
+}
 @media (max-width: 640px) {
   .hero-arrow { display: none; }
+  .ctabs { gap: 2px; }
+  .ctab { padding: 12px 13px; font-size: .94rem; }
+  .ctab::after { left: 8px; right: 8px; }
   .fx-photo { width: 100%; }
   .stats { gap: 12px; }
   .stat > span { font-size: 10.5px; }
-  .board, .empties, .founders, .form { grid-template-columns: minmax(0, 1fr); }
+  .board, .founders, .form { grid-template-columns: minmax(0, 1fr); }
   .frow > button { grid-template-columns: minmax(0, 1fr) 24px; gap: 4px 12px; padding: 16px 2px; }
   .fd { grid-column: 1; grid-row: 2; }
   .frow > button svg.i { grid-column: 2; grid-row: 1 / span 2; transition: transform 300ms var(--ease-out); }
@@ -377,6 +397,13 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
   .quote::before { width: 8px; }
 }
 @media (hover: none) { .fprev { display: none; } .fmob { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 300ms var(--ease-out); } .frow.open .fmob { grid-template-rows: 1fr; } .fmob > div { overflow: hidden; } .fmob img { width: 100%; max-width: 280px; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 8px; margin-bottom: 16px; } }
+@media (max-width: 380px) {
+  .ctab { padding: 12px 8px; font-size: .85rem; }
+  .ctab::after { left: 4px; right: 4px; }
+}
+@media (max-width: 340px) {
+  .ctab { padding: 12px 6px; font-size: .8rem; }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .marq-track, .route .arc, .route .ring { animation: none !important; }
@@ -556,12 +583,24 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
       <div class="sec-head">
         <p class="eyebrow">Cases</p>
         <h2>Resultado em cada formato que produzimos.</h2>
-        <p class="lead">Enquanto reunimos os primeiros cases publicados, veja abaixo os formatos que já dominamos, do vídeo à campanha de tráfego.</p>
+        <p class="lead">Três trabalhos nossos: uma arte, um vídeo e uma campanha de geração de leads. Escolha uma aba pra ver.</p>
       </div>
-      <div class="empties">
-        <div class="empty"><span class="tag">Em produção</span><p>Case em produção</p></div>
-        <div class="empty"><span class="tag">Em produção</span><p>Case em produção</p></div>
-        <div class="empty"><span class="tag">Em produção</span><p>Case em produção</p></div>
+      <div class="ctabs" role="tablist" aria-label="Tipos de case" id="ctabs">
+        <button class="ctab" role="tab" type="button" id="tab-arte" aria-selected="true" aria-controls="cp-arte">Arte estática</button>
+        <button class="ctab" role="tab" type="button" id="tab-video" aria-selected="false" aria-controls="cp-video" tabindex="-1">Vídeo</button>
+        <button class="ctab" role="tab" type="button" id="tab-leads" aria-selected="false" aria-controls="cp-leads" tabindex="-1">Geração de leads</button>
+      </div>
+      <div class="cpanel" role="tabpanel" id="cp-arte" aria-labelledby="tab-arte">
+        <figure class="cmedia r45"><img src="assets/img/cases/arte-estatica.webp" alt="Cartaz Next Match, em preto e branco: retrato de um jogador de perfil, escudos dos dois times, data do jogo e local" width="1080" height="1350" loading="lazy" /></figure>
+        <div class="cinfo"><p class="mono">Arte estática</p><h3>Cartaz de divulgação de jogo</h3><p>Arte em 4:5 pro feed, com foto, escudos dos times e logos dos parceiros numa peça só.</p><a class="btn sm ghost" href="#contato">Quero uma arte assim <svg class="i"><use href="#i-arrow"/></svg></a></div>
+      </div>
+      <div class="cpanel" role="tabpanel" id="cp-video" aria-labelledby="tab-video" hidden>
+        <figure class="cmedia r916"><video id="caseVideo" src="assets/video/case-video.mp4" poster="assets/img/cases/video-capa.jpg" controls playsinline preload="metadata" width="1080" height="1920" aria-label="Vídeo vertical de 20 segundos"></video></figure>
+        <div class="cinfo"><p class="mono">Vídeo</p><h3>Vídeo vertical</h3><p>Gravado em 4K no formato 9:16, com 20 segundos de duração.</p><a class="btn sm ghost" href="#contato">Quero um vídeo assim <svg class="i"><use href="#i-arrow"/></svg></a></div>
+      </div>
+      <div class="cpanel" role="tabpanel" id="cp-leads" aria-labelledby="tab-leads" hidden>
+        <figure class="cmedia r45"><img src="assets/img/cases/leads-resultado.webp" alt="Resultado da campanha Dia das Mães: retorno de R$ 183.552, 87 conversas iniciadas, R$ 676,86 investidos e R$ 7,78 por conversa" width="1080" height="1350" loading="lazy" /></figure>
+        <div class="cinfo"><p class="mono">Geração de leads</p><h3>Campanha Dia das Mães</h3><p>87 conversas iniciadas por mensagem, R$ 676,86 investidos e R$ 183.552 de retorno.</p><a class="btn sm ghost" href="#contato">Quero uma campanha assim <svg class="i"><use href="#i-arrow"/></svg></a></div>
       </div>
 
       <p class="block-label">Formatos</p>
@@ -872,6 +911,25 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
     });
     list.addEventListener("pointerleave", function () { prev.classList.remove("on"); });
     window.addEventListener("scroll", function () { prev.classList.remove("on"); }, { passive: true });
+  })();
+
+  /* ---------- case tabs ---------- */
+  (function () {
+    var tabs = $$("#ctabs .ctab"), video = $("#caseVideo");
+    function pick(t) {
+      tabs.forEach(function (x) {
+        var on = x === t; x.setAttribute("aria-selected", on ? "true" : "false"); x.tabIndex = on ? 0 : -1;
+        document.getElementById(x.getAttribute("aria-controls")).hidden = !on;
+      });
+      if (video && t.id !== "tab-video") video.pause();
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener("click", function () { pick(t); });
+      t.addEventListener("keydown", function (e) {
+        var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+        if (!d) return; e.preventDefault(); var n = tabs[(i + d + tabs.length) % tabs.length]; n.focus(); pick(n);
+      });
+    });
   })();
 
   /* ---------- team roles ---------- */
