@@ -1,0 +1,188 @@
+{
+  "note": "Valores aproximados. Edite aqui para trocar os números dos cards e rode render.js de novo.",
+  "cases": [
+    {
+      "slug": "eventos",
+      "title": "Eventos",
+      "hero": {
+        "label": "Faturamento direto",
+        "value": "4.006.507",
+        "money": true
+      },
+      "chip": {
+        "label": "ROAS direto",
+        "value": "59,76"
+      },
+      "primary": [
+        {
+          "label": "Vendas",
+          "value": "11.121",
+          "money": false
+        },
+        {
+          "label": "Investimento total",
+          "value": "53.137,15",
+          "money": true
+        }
+      ],
+      "rows": [
+        {
+          "label": "Ticket médio",
+          "value": "194,23",
+          "money": true
+        },
+        {
+          "label": "ROI direto",
+          "value": "29,68",
+          "money": false
+        },
+        {
+          "label": "ROI LTV",
+          "value": "0",
+          "money": false
+        },
+        {
+          "label": "Custo por venda",
+          "value": "25,80",
+          "money": true
+        }
+      ]
+    },
+    {
+      "slug": "esportivo",
+      "title": "Esportivo",
+      "hero": {
+        "label": "Faturamento direto",
+        "value": "5.240.100",
+        "money": true
+      },
+      "chip": {
+        "label": "ROAS direto",
+        "value": "15,75"
+      },
+      "primary": [
+        {
+          "label": "Vendas",
+          "value": "7.900",
+          "money": false
+        },
+        {
+          "label": "Investimento total",
+          "value": "270.592,01",
+          "money": true
+        }
+      ],
+      "rows": [
+        {
+          "label": "Ticket médio",
+          "value": "625,15",
+          "money": true
+        },
+        {
+          "label": "ROI direto",
+          "value": "4,72",
+          "money": false
+        },
+        {
+          "label": "ROI LTV",
+          "value": "340,14",
+          "money": false
+        },
+        {
+          "label": "Custo por venda",
+          "value": "45,47",
+          "money": true
+        }
+      ]
+    },
+    {
+      "slug": "energia-solar",
+      "title": "Energia Solar",
+      "hero": {
+        "label": "Faturamento direto",
+        "value": "1.328.764",
+        "money": true
+      },
+      "chip": {
+        "label": "ROAS direto",
+        "value": "25,68"
+      },
+      "primary": [
+        {
+          "label": "Vendas",
+          "value": "64",
+          "money": false
+        },
+        {
+          "label": "Investimento total",
+          "value": "50.284,68",
+          "money": true
+        }
+      ],
+      "rows": [
+        {
+          "label": "Leads",
+          "value": "1.383",
+          "money": false
+        },
+        {
+          "label": "ROI direto",
+          "value": "3,85",
+          "money": false
+        },
+        {
+          "label": "Custo por lead",
+          "value": "37,74",
+          "money": true
+        },
+        {
+          "label": "Custo por venda",
+          "value": "531,51",
+          "money": true
+        }
+      ]
+    },
+    {
+      "slug": "estetica",
+      "title": "Estética",
+      "hero": {
+        "label": "Faturamento direto",
+        "value": "957.967",
+        "money": true
+      },
+      "chip": {
+        "label": "ROAS direto",
+        "value": "15,30"
+      },
+      "primary": [
+        {
+          "label": "Vendas",
+          "value": "503",
+          "money": false
+        },
+        {
+          "label": "Investimento total",
+          "value": "62.465,90",
+          "money": true
+        }
+      ],
+      "rows": [
+        {
+          "label": "Leads",
+          "value": "4.366",
+          "money": false
+        },
+        {
+          "label": "ROI direto",
+          "value": "6,89",
+          "money": false
+        },
+        {
+          "label": "Custo por venda",
+          "value": "118,49",
+          "money": true
+        }
+      ]
+    }
+  ]
+}
