@@ -55,7 +55,7 @@
   color-scheme: dark;
 }
 /* the closing section and footer stay dark in both themes */
-.sec-dark {
+.sec-dark, .intro {
   --bg: #100D0D; --surface: #1B1717; --sunk: #1B1717;
   --ink: #F5F3F1; --ink-2: #D2CBC8; --muted: #A09695; --hair: #2E2828; --hair-2: #403838;
   --accent-text: #F0686C; --tint-gray: #2A2525; --grain: .07; --photo-o: .16; --ok: #4FC083;
@@ -109,6 +109,27 @@ svg.i { width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor;
 .fx-photo { left: auto; width: min(50%, 640px); background: var(--photo) center / cover no-repeat; opacity: var(--photo-o); filter: grayscale(1); }
 .fx-photo.right { -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 70%), linear-gradient(180deg, #000 55%, transparent 100%); -webkit-mask-composite: source-in; mask-image: linear-gradient(90deg, transparent 0%, #000 70%), linear-gradient(180deg, #000 55%, transparent 100%); mask-composite: intersect; }
 .fx-photo.left { left: 0; right: auto; -webkit-mask-image: linear-gradient(270deg, transparent 0%, #000 70%), linear-gradient(180deg, #000 55%, transparent 100%); -webkit-mask-composite: source-in; mask-image: linear-gradient(270deg, transparent 0%, #000 70%), linear-gradient(180deg, #000 55%, transparent 100%); mask-composite: intersect; }
+
+/* ---------- Intro (logo + 0 to 100%) ---------- */
+.intro { display: none; position: fixed; inset: 0; z-index: 100; place-items: center; overflow: hidden; background: var(--bg); color: var(--ink); will-change: clip-path; }
+.has-intro .intro { display: grid; }
+.intro::before { content: ""; position: absolute; inset: 0; background: radial-gradient(800px 600px at 85% 12%, rgba(196,39,44,.34), transparent 60%), radial-gradient(700px 520px at 0% 100%, rgba(112,9,10,.5), transparent 60%); }
+.intro::after { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(245,243,241,.14) 1.2px, transparent 1.8px); background-size: 26px 26px; -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 0%, transparent 100%); mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 0%, transparent 100%); }
+.intro-in { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: clamp(22px, 4vw, 36px); transition: opacity 300ms var(--ease), transform 420ms var(--ease-out); }
+.intro.out .intro-in { opacity: 0; transform: translateY(-14px) scale(.98); }
+.intro-logo { position: relative; width: clamp(160px, 28vw, 260px); aspect-ratio: 1569 / 789; --p: 0%; }
+.intro-logo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.intro-logo .base { filter: grayscale(1) brightness(.6); opacity: .45; }
+.intro-logo .fill { clip-path: inset(0 calc(100% - var(--p)) 0 0); }
+.intro-pct { display: flex; align-items: baseline; justify-content: center; gap: 6px; min-width: 4.4ch; font: 800 clamp(2.4rem, 7vw, 4.4rem)/1 var(--font); font-stretch: 112%; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.intro-pct small { font-size: .5em; letter-spacing: 0; color: var(--red); }
+html.has-intro:not(.intro-done) { overflow: hidden; }
+.ri { transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms); }
+.has-intro:not(.intro-done) .ri { opacity: 0; transform: translateY(28px); }
+.has-intro:not(.intro-done) .nav { opacity: 0; }
+.has-intro:not(.intro-done) .hero-arrow { opacity: 0; }
+.nav { transition: border-color 200ms, opacity 800ms var(--ease-out) 200ms; }
+.hero-arrow { transition: opacity 1.4s var(--ease-out) .3s; }
 
 /* ---------- Header ---------- */
 .nav { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40; height: var(--top-h); background: color-mix(in srgb, var(--bg) 86%, transparent); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-bottom: 1px solid transparent; transition: border-color 200ms; }
@@ -413,10 +434,29 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
   html { scroll-behavior: auto; }
   .marq-track, .route .arc, .route .ring { animation: none !important; }
   .btn::before, .panel, .panel .ph { transition-duration: 1ms !important; }
+  .ri { transition: none; }
 }
 </style>
+<script>
+(function () {
+  var d = document.documentElement;
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || location.hash) return;            // no intro for reduced motion or deep links
+  d.classList.add("has-intro");
+  setTimeout(function () {                         // failsafe: never keep the site hidden
+    d.classList.add("intro-done");
+    var i = document.getElementById("intro"); if (i) i.style.display = "none";
+  }, 12000);
+})();
+</script>
 </head>
 <body>
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-in">
+    <div class="intro-logo"><img class="base" src="assets/img/logo/lax-color.png" alt="" width="260" height="131" /><img class="fill" src="assets/img/logo/lax-color.png" alt="" width="260" height="131" /></div>
+    <p class="intro-pct"><span id="introNum">0</span><small>%</small></p>
+  </div>
+</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
@@ -463,14 +503,14 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
     <div class="fx hero-bg" id="heroBg" aria-hidden="true"><div class="base"></div><div class="glow"></div><div class="hot"></div></div>
     <svg class="hero-arrow" viewBox="0 0 400 400" aria-hidden="true"><path d="M30 370 L350 50"/><path d="M170 40 H360 V230"/></svg>
     <div class="wrap">
-      <p class="eyebrow">Assessoria de marketing completa</p>
-      <h1>Marketing completo, <em>sem depender de mais ninguém</em>.</h1>
-      <p class="hero-sub">Performance, branding, social media, conteúdo e tráfego pago, um time só, do diagnóstico ao resultado.</p>
-      <div class="hero-cta">
+      <p class="eyebrow ri" style="--i:0">Assessoria de marketing completa</p>
+      <h1 class="ri" style="--i:1">Marketing completo, <em>sem depender de mais ninguém</em>.</h1>
+      <p class="hero-sub ri" style="--i:2">Performance, branding, social media, conteúdo e tráfego pago, um time só, do diagnóstico ao resultado.</p>
+      <div class="hero-cta ri" style="--i:3">
         <a class="btn" href="#contato">Vamos conversar <svg class="i"><use href="#i-arrow"/></svg></a>
         <a class="btn ghost" href="#servicos">Ver serviços</a>
       </div>
-      <div class="stats" aria-label="A LAX em números">
+      <div class="stats ri" style="--i:4" aria-label="A LAX em números">
         <div class="stat"><b><span data-count="3">3</span><em>+</em></b><span>Anos de trajetória</span></div>
         <div class="stat"><b><span data-count="150">150</span><em>+</em></b><span>Clientes atendidos</span></div>
         <div class="stat"><b><span data-count="5">5</span><em>+</em></b><span>Países</span></div>
@@ -781,6 +821,47 @@ h3 { font-weight: 800; font-stretch: 106%; letter-spacing: -.02em; }
   var fine = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   var WA = "https://wa.me/5551991990892";
   function go(id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }); }
+
+  /* ---------- intro: real loading gates the 0-100 counter, then the curtain lifts ---------- */
+  (function () {
+    var root = document.documentElement, intro = $("#intro");
+    if (!intro || !root.classList.contains("has-intro")) return;
+    var num = $("#introNum"), logo = $(".intro-logo", intro);
+    var MIN = 1900, MAX = 7000, t0 = performance.now(), real = 0, shown = 0, over = false;
+    var ready = { fonts: false, load: false };
+    function sync() { real = (ready.fonts ? .4 : 0) + (ready.load ? .6 : 0); }
+    var fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    fonts.then(function () { ready.fonts = true; sync(); }, function () { ready.fonts = true; sync(); });
+    if (document.readyState === "complete") { ready.load = true; sync(); }
+    else window.addEventListener("load", function () { ready.load = true; sync(); });
+    window.addEventListener("pageshow", function (e) { if (e.persisted) { intro.style.display = "none"; root.classList.add("intro-done"); } });
+    function paint(p) { var v = Math.round(p * 100); num.textContent = v; logo.style.setProperty("--p", v + "%"); }
+    function inOut(t) { return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function lift() {
+      intro.classList.add("out");
+      setTimeout(function () {
+        function hide() { intro.style.display = "none"; root.classList.add("intro-done"); }
+        if (!intro.animate) { intro.style.transition = "opacity 500ms"; intro.style.opacity = "0"; setTimeout(hide, 520); return; }
+        var a = intro.animate(
+          [{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }, { clipPath: "polygon(0 -110%, 100% -110%, 100% -60%, 0 -10%)" }],
+          { duration: 950, easing: "cubic-bezier(.76,0,.24,1)", fill: "forwards" });
+        setTimeout(function () { root.classList.add("intro-done"); }, 420);   // the site starts entering while the curtain is still rising
+        a.onfinish = hide;
+      }, 320);
+    }
+    function frame(now) {
+      if (over) return;
+      var el = now - t0, timed = inOut(Math.min(1, el / MIN));
+      var gate = el > MAX || real >= 1 ? 1 : .12 + real * .8;      // 100% waits for the real load, up to MAX
+      var target = Math.min(timed, gate);
+      shown += (target - shown) * .16;
+      if (target >= 1 && shown > .994) shown = 1;
+      paint(shown);
+      if (shown >= 1) { over = true; setTimeout(lift, 380); return; }
+      requestAnimationFrame(frame);
+    }
+    paint(0); requestAnimationFrame(frame);
+  })();
 
   /* ---------- toast + copy ---------- */
   var toastEl = $("#toast"), toastT;
