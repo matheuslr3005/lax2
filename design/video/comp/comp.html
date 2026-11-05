@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<style>
+@font-face{font-family:"Archivo";font-style:normal;font-weight:100 900;font-stretch:62% 125%;src:url("../fonts/node_modules/@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2") format("woff2")}
+@font-face{font-family:"Archivo";font-style:italic;font-weight:100 900;font-stretch:62% 125%;src:url("../fonts/node_modules/@fontsource-variable/archivo/files/archivo-latin-standard-italic.woff2") format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-weight:500;src:url("../fonts/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff2") format("woff2")}
+:root{--red:#C4272C;--red-hi:#F0686C;--wine:#70090A;--ink:#F5F3F1;--muted:#A89E9C;--slant:skewX(-20deg);--unslant:skewX(20deg)}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1920px;background:#0F0C0C;overflow:hidden}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden;font-family:"Archivo","Helvetica Neue",Arial,sans-serif;color:var(--ink);isolation:isolate}
+
+/* ---- background ---- */
+.bg{position:absolute;inset:0;z-index:-5;background:#0F0C0C}
+.glow{position:absolute;border-radius:50%;filter:blur(40px);will-change:transform,opacity}
+.glow.a{width:1100px;height:1100px;right:-380px;top:-300px;background:radial-gradient(circle,rgba(196,39,44,.55),transparent 62%)}
+.glow.b{width:1000px;height:1000px;left:-420px;bottom:-260px;background:radial-gradient(circle,rgba(112,9,10,.7),transparent 62%)}
+.glow.c{width:900px;height:900px;left:90px;top:760px;background:radial-gradient(circle,rgba(196,39,44,.35),transparent 60%);opacity:.0}
+.dots{position:absolute;inset:0;z-index:-4;background-image:radial-gradient(rgba(245,243,241,.16) 1.6px,transparent 2.3px);background-size:34px 34px;-webkit-mask-image:radial-gradient(ellipse 80% 55% at 50% 38%,#000 0%,transparent 100%);mask-image:radial-gradient(ellipse 80% 55% at 50% 38%,#000 0%,transparent 100%)}
+.grain{position:absolute;inset:0;z-index:-3;opacity:.08;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.arrow{position:absolute;z-index:-4;right:-120px;top:520px;width:900px;height:900px;fill:none;stroke:var(--red-hi);stroke-width:2;opacity:.22}
+
+/* ---- captions ---- */
+.cap{position:absolute;left:60px;top:112px;width:960px;opacity:0}
+.cap .ln{overflow:hidden;padding:0 0 .08em;line-height:1}
+.cap .ln span{display:block;font:800 86px/.98 "Archivo",sans-serif;font-stretch:112%;letter-spacing:-.035em;text-transform:uppercase;color:#fff;white-space:nowrap;width:max-content;will-change:transform}
+.cap em{font-style:italic;color:var(--red-hi)}
+.cap .sub{display:flex;align-items:center;gap:16px;margin-top:20px;font:500 23px/1 "JetBrains Mono",monospace;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.cap .sub i{display:block;width:12px;height:26px;background:var(--red);transform:var(--slant);flex:none}
+
+/* ---- devices ---- */
+#cam{position:absolute;inset:0;transform-origin:50% 55%}
+.lbl{position:absolute;display:flex;align-items:center;gap:12px;font:500 20px/1 "JetBrains Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.lbl::before{content:"";width:10px;height:20px;background:var(--red);transform:var(--slant)}
+.desk{position:absolute;left:60px;top:398px;width:960px;height:584px;border-radius:18px;background:#E9E5E2;overflow:hidden;box-shadow:0 50px 100px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1),0 0 90px rgba(196,39,44,.18);transform-origin:50% 100%;will-change:transform}
+.desk .bar{height:44px;display:flex;align-items:center;gap:9px;padding:0 18px;background:linear-gradient(#F6F3F0,#E7E2DE);border-bottom:1px solid #D6D0CB}
+.desk .bar b{width:12px;height:12px;border-radius:50%;display:block}
+.desk .url{position:absolute;left:50%;top:9px;width:380px;height:26px;margin-left:-190px;border-radius:13px;background:#fff;box-shadow:inset 0 0 0 1px #DDD7D2;display:flex;align-items:center;justify-content:center;gap:8px;font:500 14px/1 "JetBrains Mono",monospace;color:#4A4244}
+.desk .scr{position:relative;width:960px;height:540px;background:#100D0D;overflow:hidden}
+.desk .scr::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);pointer-events:none}
+.desk .scr img,.pscr img{position:absolute;left:0;top:0;display:block}
+.desk .scr img{width:960px;height:540px}
+.phone{position:absolute;left:348px;top:917px;width:384px;height:774px;border-radius:66px;background:#0A0808;padding:12px;box-shadow:0 60px 110px rgba(0,0,0,.65),0 0 0 2px #2a2424,inset 0 0 0 2px #181414,0 0 100px rgba(196,39,44,.22);will-change:transform}
+.phone .btn{position:absolute;width:5px;border-radius:3px;background:#1d1818}
+.pscr{position:relative;width:360px;height:750px;border-radius:54px;overflow:hidden;background:#FBFAF8}
+.pstat{position:absolute;left:0;top:0;width:360px;height:43px;display:flex;align-items:center;justify-content:space-between;padding:6px 30px 0;font:700 16px/1 "Archivo",sans-serif;letter-spacing:.01em;z-index:3}
+.pstat svg{height:14px;width:auto;fill:currentColor}
+.pscr img{top:43px;width:360px;height:707px}
+.isl{position:absolute;left:50%;top:11px;width:104px;height:30px;margin-left:-52px;border-radius:15px;background:#000;z-index:4}
+.glare{position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.10),transparent 32%);}
+
+/* ---- closing ---- */
+#close{position:absolute;inset:0;opacity:0;pointer-events:none}
+#close .logo{position:absolute;left:340px;top:470px;width:400px;will-change:transform,opacity}
+#close .h{position:absolute;left:60px;top:800px;width:960px;text-align:center}
+#close .h div{overflow:hidden;line-height:1;padding-bottom:.08em}
+#close .h span{display:block;font:800 126px/.98 "Archivo",sans-serif;font-stretch:112%;letter-spacing:-.04em;text-transform:uppercase;color:#fff;white-space:nowrap;width:max-content;margin:0 auto;will-change:transform}
+#close .h em{font-style:italic;color:var(--red-hi)}
+#close .pill{position:absolute;left:50%;top:1135px;transform:translateX(-50%);padding:18px 40px;border:2px solid rgba(245,243,241,.5);border-radius:999px;font:700 44px/1 "Archivo",sans-serif;font-stretch:108%;letter-spacing:-.01em;white-space:nowrap;will-change:transform,opacity}
+#close .url{position:absolute;left:0;width:1080px;top:1230px;text-align:center;font:500 26px/1 "JetBrains Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);will-change:opacity}
+#close .plate{position:absolute;left:50%;top:708px;margin-left:-250px;width:500px;text-align:center;will-change:transform,opacity}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="bg"></div>
+  <div class="glow a" id="gA"></div><div class="glow b" id="gB"></div><div class="glow c" id="gC"></div>
+  <div class="dots"></div><div class="grain"></div>
+  <svg class="arrow" viewBox="0 0 640 640" aria-hidden="true"><path d="M40 600 L560 80"/><path d="M290 60 H580 V350"/></svg>
+
+  <div id="caps"></div>
+
+  <div class="lbl" id="lblD" style="left:60px;top:362px">Desktop</div>
+  <div class="lbl" id="lblM" style="left:60px;top:1010px">Mobile</div>
+
+  <div id="cam">
+    <div class="desk" id="desk">
+      <div class="bar"><b style="background:#EE6A5E"></b><b style="background:#F4BE4F"></b><b style="background:#61C554"></b>
+        <div class="url"><svg width="12" height="14" viewBox="0 0 12 14" fill="none" stroke="#6F6667" stroke-width="1.6"><rect x="1.5" y="6" width="9" height="7" rx="1.5"/><path d="M3.5 6V4a2.5 2.5 0 0 1 5 0v2"/></svg>laxassessoria.com.br</div></div>
+      <div class="scr"><img id="imgD" alt="" /></div>
+    </div>
+    <div class="phone" id="phone">
+      <i class="btn" style="left:-4px;top:150px;height:46px"></i><i class="btn" style="left:-4px;top:216px;height:78px"></i><i class="btn" style="left:-4px;top:310px;height:78px"></i><i class="btn" style="right:-4px;top:250px;height:110px"></i>
+      <div class="pscr" id="pscr">
+        <div class="pstat" id="pstat"><span>9:41</span>
+          <span style="display:flex;gap:7px;align-items:center"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 26 13"><rect x=".6" y=".6" width="21" height="11.8" rx="3.4" fill="none" stroke="currentColor" stroke-opacity=".5" stroke-width="1.2"/><rect x="2.2" y="2.2" width="18" height="8.6" rx="2" /><rect x="23" y="4.2" width="2" height="4.6" rx="1" fill-opacity=".5"/></svg></span></div>
+        <div class="isl"></div>
+        <img id="imgM" alt="" />
+        <div class="glare"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="close">
+    <img class="logo" id="clLogo" src="../logo.png" alt="" />
+    <div class="plate" id="clPlate"></div>
+    <div class="h"><div><span id="clH1">VAMOS</span></div><div><span id="clH2"><em>CONVERSAR?</em></span></div></div>
+    <div class="pill" id="clPill">@laxassessoria</div>
+    <div class="url" id="clUrl">laxassessoria.com.br</div>
+  </div>
+</div>
+
+<script>
+const TD = 3.6;                                   // composition time at which the opening animation ends
+const B = window.BEATS;                           // beat sheet (seconds after the opening ends), injected by render.js
+const T = (k) => TD + B[k];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const easeOut = (p) => 1 - Math.pow(1 - clamp(p), 3);
+const easeOut5 = (p) => 1 - Math.pow(1 - clamp(p), 5);
+const easeInOut = (p) => { p = clamp(p); return p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2; };
+const lerp = (a, b, p) => a + (b - a) * p;
+
+/* captions: [start, end, line 1, line 2 (*word* is the red italic), sub label] */
+const CAPS = [
+  [0.30, TD - 0.05,        'O NOVO SITE', 'DA *LAX*',               'Assessoria de marketing completa'],
+  [TD + 0.05, T('quem'),   'DESKTOP E CELULAR.', '*AO MESMO TEMPO.*', '100% responsivo'],
+  [T('quem'), T('serv'),   'CONTEÚDO CLARO,', '*DIRETO AO PONTO.*',   'Quem somos'],
+  [T('serv'), T('metodo'), 'SERVIÇOS QUE', '*REAGEM AO TOQUE.*',      'Passe o mouse · toque na tela'],
+  [T('metodo'), T('cases'),'VEJA O MÉTODO', '*FUNCIONANDO.*',         'Como trabalhamos'],
+  [T('cases'), T('cases') + 3.6, 'ARTE, VÍDEO', '*E RESULTADO.*',     'Cases'],
+  [T('cases') + 3.6, T('formatos'), 'RESULTADOS POR', '*SEGMENTO.*',  'Geração de leads'],
+  [T('formatos'), T('contato'), 'FORMATOS QUE', '*A GENTE PRODUZ.*',  'Passe o mouse · veja em ação'],
+  [T('contato'), T('end') + 0.05, 'FALE COM A GENTE', '*EM POUCOS TOQUES.*', 'Formulário · WhatsApp · e-mail'],
+];
+const CLOSE_AT = T('end') + 0.15;
+const END = CLOSE_AT + 3.4;
+
+const capsEl = document.getElementById('caps');
+const emph = (s) => s.replace(/\*(.+?)\*/g, '<em>$1</em>');
+const capNodes = CAPS.map(([s, e, l1, l2, sub]) => {
+  const d = document.createElement('div'); d.className = 'cap';
+  d.innerHTML = `<div class="ln"><span>${emph(l1)}</span></div><div class="ln"><span>${emph(l2)}</span></div><div class="sub"><i></i>${sub}</div>`;
+  capsEl.appendChild(d);
+  return { d, s, e, l: [...d.querySelectorAll('.ln span')], sub: d.querySelector('.sub') };
+});
+function fitCaps() {                              // never let a headline leave the margins
+  capNodes.forEach((c) => c.l.forEach((sp) => { let f = 86; sp.style.fontSize = f + 'px'; while (sp.offsetWidth > 940 && f > 40) { f -= 2; sp.style.fontSize = f + 'px'; } }));
+  ['clH1', 'clH2'].forEach((id) => { const sp = document.getElementById(id); let f = 126; sp.style.fontSize = f + 'px'; while (sp.offsetWidth > 900 && f > 50) { f -= 2; sp.style.fontSize = f + 'px'; } });
+}
+const plate = document.getElementById('clPlate');
+plate.innerHTML = '<span style="display:inline-block;transform:skewX(-20deg);background:#C4272C;padding:10px 26px"><span style="display:inline-block;transform:skewX(20deg);font:italic 800 26px/1.1 Archivo,sans-serif;font-stretch:110%;letter-spacing:.01em;text-transform:uppercase;color:#fff">Assessoria de marketing</span></span>';
+
+const $ = (id) => document.getElementById(id);
+const el = { desk: $('desk'), phone: $('phone'), cam: $('cam'), lblD: $('lblD'), lblM: $('lblM'), gA: $('gA'), gB: $('gB'), gC: $('gC'), pstat: $('pstat'),
+  close: $('close'), logo: $('clLogo'), plate, h1: $('clH1'), h2: $('clH2'), pill: $('clPill'), url: $('clUrl'), imgD: $('imgD'), imgM: $('imgM') };
+const beatTimes = [0.3, TD, T('quem'), T('serv'), T('metodo'), T('cases'), T('formatos'), T('contato')];
+
+window.renderAt = async function (t, deskSrc, mobSrc) {
+  /* background life */
+  const pulse = beatTimes.reduce((m, b) => (t >= b ? Math.max(m, Math.exp(-(t - b) * 2.4)) : m), 0);
+  el.gA.style.transform = `translate(${Math.sin(t * .45) * 40}px,${Math.cos(t * .38) * 30}px) scale(${1 + pulse * .12})`;
+  el.gA.style.opacity = .75 + pulse * .25;
+  el.gB.style.transform = `translate(${Math.cos(t * .33) * 40}px,${Math.sin(t * .4) * 36}px)`;
+  const closeP = clamp((t - CLOSE_AT) / 0.9);
+  el.gC.style.opacity = closeP * .9; el.gC.style.transform = `translate(0,${-(closeP) * 60}px) scale(${1 + closeP * .35})`;
+
+  /* devices: enter in 3D, then float; leave for the closing card */
+  const inD = easeOut5((t - 0.35) / 1.0), inM = easeOut5((t - 0.65) / 1.0), out = easeInOut((t - CLOSE_AT) / 0.8);
+  const fl = Math.sin(t * 1.25);
+  el.desk.style.opacity = inD * (1 - out);
+  el.desk.style.transform = `perspective(2200px) translateY(${(1 - inD) * 150 + fl * 5 - out * 120}px) rotateX(${(1 - inD) * 22 + Math.sin(t * .8) * .7}deg) rotateY(${(1 - inD) * -10 + Math.sin(t * .6) * 1.1}deg) scale(${lerp(.9, 1, inD) * (1 - out * .12)})`;
+  el.phone.style.opacity = inM * (1 - out);
+  el.phone.style.transform = `perspective(2200px) translateY(${(1 - inM) * 260 - fl * 6 - out * 200}px) rotateX(${(1 - inM) * 18}deg) rotateY(${(1 - inM) * 12 + Math.sin(t * .7 + 1) * 1.4}deg) scale(${lerp(.92, 1, inM) * .93 * (1 - out * .14)})`;
+  const z = 1.012 + .016 * Math.sin(t * .5);
+  el.cam.style.transform = `scale(${z})`;
+  el.lblD.style.opacity = inD * (1 - out); el.lblM.style.opacity = inM * (1 - out);
+  el.lblD.style.transform = `translateX(${(1 - inD) * -40}px)`; el.lblM.style.transform = `translateX(${(1 - inM) * -40}px)`;
+
+  /* phone status bar follows the screen: dark while the opening plays, light after */
+  const lt = easeInOut((t - (TD - 0.25)) / 0.5);
+  const bg = [lerp(16, 251, lt), lerp(13, 250, lt), lerp(13, 248, lt)].map(Math.round), fg = [lerp(245, 27, lt), lerp(243, 21, lt), lerp(241, 22, lt)].map(Math.round);
+  el.pstat.style.background = `rgb(${bg})`; el.pstat.style.color = `rgb(${fg})`;
+
+  /* captions */
+  capNodes.forEach((c) => {
+    const inP = (t - c.s) / .62, outP = (t - (c.e - .32)) / .3;
+    if (t < c.s - .01 || t > c.e + .01) { c.d.style.opacity = 0; return; }
+    c.d.style.opacity = 1;
+    c.l.forEach((sp, i) => {
+      const a = easeOut5((t - c.s - i * .09) / .62), b = easeInOut((t - (c.e - .34) - i * .05) / .3);
+      sp.style.transform = `translateY(${(1 - a) * 115 - b * 115}%)`;
+    });
+    const sa = easeOut((t - c.s - .3) / .5), sb = clamp(outP);
+    c.sub.style.opacity = sa * (1 - sb); c.sub.style.transform = `translateX(${(1 - sa) * -30}px)`;
+  });
+
+  /* closing card */
+  el.close.style.opacity = closeP > 0 ? 1 : 0;
+  const a1 = easeOut5((t - CLOSE_AT - .15) / .8), a2 = easeOut5((t - CLOSE_AT - .35) / .8), a3 = easeOut5((t - CLOSE_AT - .5) / .8), a4 = easeOut((t - CLOSE_AT - .8) / .6), a5 = easeOut5((t - CLOSE_AT - .1) / .7);
+  el.logo.style.opacity = a5; el.logo.style.transform = `translateY(${(1 - a5) * 50}px) scale(${lerp(.9, 1, a5)})`;
+  el.plate.style.opacity = a5; el.plate.style.transform = `translateY(${(1 - a5) * 30}px)`;
+  el.h1.style.transform = `translateY(${(1 - a1) * 115}%)`; el.h2.style.transform = `translateY(${(1 - a2) * 115}%)`;
+  el.pill.style.opacity = a3; el.pill.style.transform = `translateX(-50%) translateY(${(1 - a3) * 40}px) scale(${lerp(.9, 1, a3)})`;
+  el.url.style.opacity = a4;
+
+  /* the two recorded screens */
+  const jobs = [];
+  if (deskSrc && el.imgD.getAttribute('data-src') !== deskSrc) { el.imgD.setAttribute('data-src', deskSrc); el.imgD.src = deskSrc; jobs.push(el.imgD.decode().catch(() => {})); }
+  if (mobSrc && el.imgM.getAttribute('data-src') !== mobSrc) { el.imgM.setAttribute('data-src', mobSrc); el.imgM.src = mobSrc; jobs.push(el.imgM.decode().catch(() => {})); }
+  await Promise.all(jobs);
+  await document.fonts.ready;
+};
+window.compMeta = { TD, END, fps: 30 };
+window.fitCaps = fitCaps;
+</script>
+</body>
+</html>
